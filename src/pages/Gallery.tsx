@@ -1,15 +1,16 @@
 import { useMemo, useState } from 'react';
-import { Copy, Download, FileBraces, Gauge, ImagePlus, Images, Pencil, Play, Power, Search, Trash2, Type } from 'lucide-react';
+import { Copy, Download, FileBraces, Gauge, ImagePlus, Images, Pencil, Play, Power, Search, Sparkles, Trash2, Type } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
 import { ImportButton } from '../components/ImportButton';
 import { BootCanvas } from '../components/boot/BootCanvas';
 import { DisplayScreen } from '../components/scooter/DisplayScreen';
-import { Badge, EmptyState } from '../components/ui/Card';
+import { Badge, EmptyState, SectionLabel } from '../components/ui/Card';
 import { Button, IconButton } from '../components/ui/Button';
 import { CompatBadge } from '../components/ui/Compat';
 import { Segmented } from '../components/ui/Form';
 import { ConfirmDialog, PromptDialog } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
+import { bundledDesignsFor, type BundledDesign } from '../data/bundledDesigns';
 import { resolveLayout } from '../data/layouts';
 import { SCOOTERS } from '../data/scooters';
 import { useNav } from '../hooks/useNav';
@@ -27,7 +28,7 @@ export function Gallery() {
   const model = useModel();
   const store = useStore();
   const { savedThemes, bootDesigns, customLayouts, preview, settings, designs } = store;
-  const { t, locale } = useI18n();
+  const { t, l, locale } = useI18n();
   const { navigate } = useNav();
   const toast = useToast();
   const play = useSound();
@@ -46,6 +47,16 @@ export function Gallery() {
     store.applyTheme(model, theme);
     play('success');
     toast(t('toast.applied', { name: theme.name }));
+  };
+
+  /** Lädt ein mitgeliefertes Design: Theme und Boot-Logo nur, wenn sie noch fehlen; das Layout wird immer gesetzt. */
+  const loadBundled = (design: BundledDesign) => {
+    store.applyImport({
+      ...design.data,
+      themes: design.data.themes.filter((th) => !savedThemes.some((s) => s.id === th.id)),
+      bootDesigns: design.data.bootDesigns.filter((b) => !bootDesigns.some((s) => s.id === b.id)),
+    });
+    applyTheme(design.theme);
   };
 
   const editTheme = (theme: DisplayTheme) => {
@@ -75,6 +86,7 @@ export function Gallery() {
   };
 
   const count = tab === 'themes' ? savedThemes.length : bootDesigns.length;
+  const bundledDesigns = bundledDesignsFor(model);
 
   return (
     <div className="animate-page-in">
@@ -93,6 +105,35 @@ export function Gallery() {
           </>
         }
       />
+
+      {bundledDesigns.length > 0 && (
+        <section className="mb-6">
+          <SectionLabel>{t('gallery.bundled.title')}</SectionLabel>
+          <div className="grid gap-4 lg:grid-cols-2">
+            {bundledDesigns.map((design) => {
+              const active = designs[model].sourceId === design.theme.id;
+              return (
+                <article key={design.theme.id} className="glass neon-border flex items-center gap-4 rounded-[var(--radius-card)] p-3 sm:p-4">
+                  <div className="w-32 shrink-0 overflow-hidden rounded-xl sm:w-44">
+                    <DisplayScreen theme={design.theme} layout={design.layout} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} label={design.theme.name} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1 flex flex-wrap items-center gap-2">
+                      <h3 className="font-semibold text-fg">{design.theme.name}</h3>
+                      {active && <Badge tone="ok">{t('store.active')}</Badge>}
+                    </div>
+                    <p className="text-xs leading-relaxed text-muted">{l(design.description)}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-subtle">{t('gallery.bundled.note')}</p>
+                    <Button size="sm" variant="primary" icon={Sparkles} onClick={() => loadBundled(design)} className="mt-3">
+                      {t('gallery.bundled.load')}
+                    </Button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
         <Segmented<Tab>

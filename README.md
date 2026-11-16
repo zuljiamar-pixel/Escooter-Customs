@@ -46,14 +46,15 @@ Alle Daten (Themes, Logos, Layouts, Einstellungen) werden **lokal im Browser** g
 
 ## Fertige Designs
 
-Im Ordner [`designs/`](designs/) liegen fertige Design-Dateien zum Importieren (**Design-Galerie → Importieren**):
+Fertige Designs lassen sich in der **Design-Galerie** unter „Fertige Designs“ mit einem Klick laden und anwenden.
+Die Dateien dazu liegen im Ordner [`designs/`](designs/) und lassen sich auch von Hand importieren (**Design-Galerie → Importieren**):
 
 | Datei | Modell | Inhalt |
 | --- | --- | --- |
 | [`max-g3-hyper-volt.json`](designs/max-g3-hyper-volt.json) | MAX G3 | Theme **Hyper Volt** (Volt-Gelb/Cyan, Segmentziffern, Vollbild-Tacho als eigenes Layout) und passendes Boot-Logo |
 
-Nach dem Import das Theme in der Galerie **anwenden**. Die Datei bringt ein eigenes Layout mit und ersetzt dabei das
-bisherige eigene Layout („Custom Dashboard“) des jeweiligen Modells. Wie alle Designs ist auch dieses eine Vorschau in der App.
+Nach einem Import von Hand das Theme in der Galerie **anwenden**. Ein fertiges Design bringt ein eigenes Layout mit und ersetzt
+dabei das bisherige eigene Layout („Custom Dashboard“) des jeweiligen Modells. Wie alle Designs ist auch dieses eine Vorschau in der App.
 
 ## Tech-Stack
 

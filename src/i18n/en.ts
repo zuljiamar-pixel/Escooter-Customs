@@ -320,6 +320,9 @@ export const en: Dict = {
   'gallery.createBoot': 'Design a boot logo',
   'gallery.deleteTitle': 'Delete design?',
   'gallery.deleteText': '“{name}” will be permanently deleted from this device. Export it first if you want to keep it.',
+  'gallery.bundled.title': 'Ready-made designs',
+  'gallery.bundled.note': 'Replaces your custom layout for this model.',
+  'gallery.bundled.load': 'Load & apply',
 
   'boot.subtitle': 'Design boot screens with your own logo, text, colors and neon animations – with a realistic preview on the display.',
   'boot.save': 'Save',

@@ -332,6 +332,9 @@ export const de = {
   'gallery.createBoot': 'Boot-Logo gestalten',
   'gallery.deleteTitle': 'Design löschen?',
   'gallery.deleteText': '„{name}“ wird dauerhaft von diesem Gerät gelöscht. Exportiere es vorher, wenn du es behalten möchtest.',
+  'gallery.bundled.title': 'Fertige Designs',
+  'gallery.bundled.note': 'Ersetzt dein eigenes Layout für dieses Modell.',
+  'gallery.bundled.load': 'Laden & anwenden',
 
   // Boot-Logo
   'boot.subtitle': 'Gestalte Startbildschirme mit eigenem Logo, Text, Farben und Neon-Animationen – mit realistischer Vorschau im Display.',
