@@ -44,6 +44,17 @@ Recherche-Grundlage (10/2026):
 
 Alle Daten (Themes, Logos, Layouts, Einstellungen) werden **lokal im Browser** gespeichert und bleiben nach einem Neustart erhalten. Keine Konten, keine Server, kein Tracking.
 
+## Fertige Designs
+
+Im Ordner [`designs/`](designs/) liegen fertige Design-Dateien zum Importieren (**Design-Galerie → Importieren**):
+
+| Datei | Modell | Inhalt |
+| --- | --- | --- |
+| [`max-g3-hyper-volt.json`](designs/max-g3-hyper-volt.json) | MAX G3 | Theme **Hyper Volt** (Volt-Gelb/Cyan, Segmentziffern, Vollbild-Tacho als eigenes Layout) und passendes Boot-Logo |
+
+Nach dem Import das Theme in der Galerie **anwenden**. Die Datei bringt ein eigenes Layout mit und ersetzt dabei das
+bisherige eigene Layout („Custom Dashboard“) des jeweiligen Modells. Wie alle Designs ist auch dieses eine Vorschau in der App.
+
 ## Tech-Stack
 
 React 19 · TypeScript 5.9 (strict) · Tailwind CSS 4 · Vite 7 · lucide-react · Vitest · lokal gebündelte Schriften (Fontsource) – keine externen Laufzeit-Abhängigkeiten.

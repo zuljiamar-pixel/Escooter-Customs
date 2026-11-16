@@ -1,0 +1,61 @@
+{
+  "app": "escooter-customizer-pro",
+  "version": 1,
+  "kind": "backup",
+  "exportedAt": "2026-11-16T11:10:05.000Z",
+  "themes": [
+    {
+      "id": "custom-max-g3-hyper-volt",
+      "name": "Hyper Volt",
+      "primary": "#f2ff1a",
+      "background": "#03050b",
+      "accent": "#00e5ff",
+      "font": "segment",
+      "layout": "custom",
+      "backgroundStyle": "gradient",
+      "glow": 85,
+      "category": "neon",
+      "createdAt": 1794827405254,
+      "updatedAt": 1794827405254
+    }
+  ],
+  "layouts": {
+    "max-g3": [
+      { "id": "speed", "x": 50, "y": 47, "scale": 0.96, "visible": true },
+      { "id": "unit", "x": 50, "y": 69.5, "scale": 1, "visible": true },
+      { "id": "gauge", "x": 50, "y": 59, "scale": 1.42, "visible": true },
+      { "id": "battery", "x": 50, "y": 92.5, "scale": 0.6, "visible": true },
+      { "id": "mode", "x": 50, "y": 81.5, "scale": 0.9, "visible": true },
+      { "id": "trip", "x": 14, "y": 11, "scale": 0.85, "visible": true },
+      { "id": "light", "x": 9, "y": 90, "scale": 1, "visible": true },
+      { "id": "bluetooth", "x": 91, "y": 90, "scale": 1, "visible": true },
+      { "id": "clock", "x": 87, "y": 10, "scale": 1, "visible": true }
+    ]
+  },
+  "bootDesigns": [
+    {
+      "id": "custom-max-g3-hyper-volt-boot",
+      "name": "Hyper Volt Boot",
+      "model": "max-g3",
+      "templateId": null,
+      "logo": null,
+      "logoScale": 0.55,
+      "logoTint": false,
+      "emblem": "bolt",
+      "title": "MAX G3",
+      "subtitle": "HYPER VOLT",
+      "font": "orbitron",
+      "textColor": "#fbffd6",
+      "glowColor": "#f2ff1a",
+      "background": "#02030a",
+      "background2": "#00303a",
+      "backgroundStyle": "grid",
+      "effect": "hyperdrive",
+      "duration": 3.6,
+      "glow": 85,
+      "showProgress": true,
+      "createdAt": 1794827405254,
+      "updatedAt": 1794827405254
+    }
+  ]
+}
