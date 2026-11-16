@@ -1,4 +1,4 @@
-import hyperVolt from '../../designs/max-g3-hyper-volt.json?raw';
+import apex from '../../designs/max-g3-apex.json?raw';
 import { DEFAULT_SETTINGS } from '../store/defaults';
 import { parseImport, type ParsedImport } from '../store/transfer';
 import type { DisplayTheme, LayoutElement, Localized, ModelId } from '../store/types';
@@ -20,9 +20,9 @@ function bundled(raw: string, model: ModelId, description: Localized): BundledDe
 }
 
 export const BUNDLED_DESIGNS: BundledDesign[] = [
-  bundled(hyperVolt, 'max-g3', {
-    de: 'Volt-Gelb und Cyan, Segmentziffern, Vollbild-Tacho und passendes Boot-Logo.',
-    en: 'Volt yellow and cyan, segment digits, full-screen gauge and a matching boot logo.',
+  bundled(apex, 'max-g3', {
+    de: 'Ruhiges Cockpit: weiße Ziffern, Bernstein-Akzent, Rundinstrument und passendes Boot-Logo.',
+    en: 'Calm cockpit: white digits, amber accent, arc gauge and a matching boot logo.',
   }),
 ];
 

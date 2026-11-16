@@ -1,0 +1,61 @@
+{
+  "app": "escooter-customizer-pro",
+  "version": 1,
+  "kind": "backup",
+  "exportedAt": "2026-11-16T12:29:06.000Z",
+  "themes": [
+    {
+      "id": "custom-max-g3-apex",
+      "name": "Apex",
+      "primary": "#f4f6f8",
+      "background": "#050607",
+      "accent": "#ffb020",
+      "font": "rajdhani",
+      "layout": "custom",
+      "backgroundStyle": "solid",
+      "glow": 8,
+      "category": "minimal",
+      "createdAt": 1794832146789,
+      "updatedAt": 1794832146789
+    }
+  ],
+  "layouts": {
+    "max-g3": [
+      { "id": "speed", "x": 50, "y": 48, "scale": 0.62, "visible": true },
+      { "id": "unit", "x": 50, "y": 66, "scale": 0.8, "visible": true },
+      { "id": "gauge", "x": 50, "y": 54, "scale": 1.08, "visible": true },
+      { "id": "battery", "x": 80, "y": 91, "scale": 0.5, "visible": true },
+      { "id": "mode", "x": 50, "y": 84, "scale": 0.75, "visible": true },
+      { "id": "trip", "x": 15, "y": 90, "scale": 0.8, "visible": true },
+      { "id": "light", "x": 81, "y": 9, "scale": 0.85, "visible": true },
+      { "id": "bluetooth", "x": 91, "y": 9, "scale": 0.85, "visible": true },
+      { "id": "clock", "x": 12, "y": 9, "scale": 0.9, "visible": true }
+    ]
+  },
+  "bootDesigns": [
+    {
+      "id": "custom-max-g3-apex-boot",
+      "name": "Apex Boot",
+      "model": "max-g3",
+      "templateId": null,
+      "logo": null,
+      "logoScale": 0.55,
+      "logoTint": false,
+      "emblem": "ring",
+      "title": "MAX G3",
+      "subtitle": "APEX",
+      "font": "rajdhani",
+      "textColor": "#f4f6f8",
+      "glowColor": "#ffb020",
+      "background": "#050607",
+      "background2": "#1a1408",
+      "backgroundStyle": "radial",
+      "effect": "fade",
+      "duration": 3,
+      "glow": 35,
+      "showProgress": true,
+      "createdAt": 1794832146789,
+      "updatedAt": 1794832146789
+    }
+  ]
+}

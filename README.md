@@ -51,7 +51,7 @@ Die Dateien dazu liegen im Ordner [`designs/`](designs/) und lassen sich auch vo
 
 | Datei | Modell | Inhalt |
 | --- | --- | --- |
-| [`max-g3-hyper-volt.json`](designs/max-g3-hyper-volt.json) | MAX G3 | Theme **Hyper Volt** (Volt-Gelb/Cyan, Segmentziffern, Vollbild-Tacho als eigenes Layout) und passendes Boot-Logo |
+| [`max-g3-apex.json`](designs/max-g3-apex.json) | MAX G3 | Theme **Apex** (weiße Ziffern, Bernstein-Akzent, Rundinstrument als eigenes Layout) und passendes Boot-Logo |
 
 Nach einem Import von Hand das Theme in der Galerie **anwenden**. Ein fertiges Design bringt ein eigenes Layout mit und ersetzt
 dabei das bisherige eigene Layout („Custom Dashboard“) des jeweiligen Modells. Wie alle Designs ist auch dieses eine Vorschau in der App.
