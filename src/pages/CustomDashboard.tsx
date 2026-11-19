@@ -25,8 +25,8 @@ import { CompatBadge, PreviewNotice } from '../components/ui/Compat';
 import { Select, Slider, Switch } from '../components/ui/Form';
 import { ConfirmDialog } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
-import { ELEMENT_IDS, presetLayout, DEFAULT_CUSTOM_LAYOUT } from '../data/layouts';
-import { SCOOTERS } from '../data/scooters';
+import { ELEMENT_IDS, presetLayout, defaultCustomLayout } from '../data/layouts';
+import { SCOOTERS, screenOf } from '../data/scooters';
 import { useSound } from '../hooks/useSound';
 import { useUndo } from '../hooks/useUndo';
 import { useI18n } from '../i18n';
@@ -40,6 +40,7 @@ type Preset = Exclude<LayoutId, 'custom'>;
 
 export function CustomDashboard() {
   const model = useModel();
+  const screen = screenOf(model);
   const { customLayouts, setCustomLayout, designs, updateDesign, preview, settings } = useStore();
   const { t } = useI18n();
   const toast = useToast();
@@ -156,7 +157,7 @@ export function CustomDashboard() {
 
   const loadPreset = () => {
     history.record();
-    commit(presetLayout(preset));
+    commit(presetLayout(preset, screen));
     play('whoosh');
     toast(t('toast.presetLoaded', { name: t(`layout.${preset}`) }), 'info');
   };
@@ -210,6 +211,7 @@ export function CustomDashboard() {
                   units={settings.units}
                   clock24h={settings.clock24h}
                   animated={false}
+                  orientation={screen}
                   editor={{ selectedId: selected, onPointerDown, showGrid: grid }}
                 />
               </div>
@@ -286,7 +288,7 @@ export function CustomDashboard() {
                       size="sm"
                       icon={RotateCcw}
                       onClick={() => {
-                        const original = DEFAULT_CUSTOM_LAYOUT.find((x) => x.id === sel.id);
+                        const original = defaultCustomLayout(screen).find((x) => x.id === sel.id);
                         if (original) patchElement(sel.id, { ...original });
                       }}
                     >
@@ -330,7 +332,7 @@ export function CustomDashboard() {
         danger
         onConfirm={() => {
           history.record();
-          commit(DEFAULT_CUSTOM_LAYOUT.map((e) => ({ ...e })));
+          commit(defaultCustomLayout(screen));
           toast(t('toast.layoutReset'), 'info');
         }}
       />

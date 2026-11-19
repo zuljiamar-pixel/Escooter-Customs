@@ -385,7 +385,7 @@ export const en: Dict = {
   'boot.export.title': 'Export & save',
   'boot.export.subtitle': 'E.g. as wallpaper, to share or as a backup',
   'boot.export.size': 'Format',
-  'boot.export.size.display': 'Display 4:3',
+  'boot.export.size.display': 'Display {ratio}',
   'boot.export.size.hd': 'Display HD',
   'boot.export.size.phone': 'Phone wallpaper',
   'boot.export.size.desktop': 'Desktop 16:9',

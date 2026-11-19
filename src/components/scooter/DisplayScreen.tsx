@@ -2,7 +2,8 @@ import { memo, useEffect, useId, useState, type CSSProperties, type PointerEvent
 import { mix, withAlpha } from '../../lib/color';
 import { cn } from '../../lib/cn';
 import { formatDistance, formatSpeed, speedUnit, distanceUnit } from '../../lib/units';
-import type { DisplayTheme, ElementId, FontId, LayoutElement, PreviewValues, Units } from '../../store/types';
+import { SCREEN_RATIO } from '../../data/scooters';
+import type { DisplayTheme, ElementId, FontId, LayoutElement, PreviewValues, ScreenOrientation, Units } from '../../store/types';
 import { SevenSegment } from './SevenSegment';
 
 export const FONT_FAMILIES: Record<FontId, string> = {
@@ -25,6 +26,10 @@ export interface DisplayScreenProps {
   units: Units;
   clock24h: boolean;
   animated?: boolean;
+  /** Ausrichtung des Displays (MAX G3: Hochformat). Größen skalieren mit der kürzeren Seite. */
+  orientation?: ScreenOrientation;
+  /** Füllt die Höhe des Elternelements statt seiner Breite (für Vorschaukacheln) */
+  fitHeight?: boolean;
   /** Akkuwert, der tatsächlich vom Gerät gelesen wurde (überschreibt den Vorschauwert) */
   liveBattery?: number | null;
   editor?: {
@@ -47,7 +52,7 @@ function backgroundFor(theme: DisplayTheme): CSSProperties {
       return {
         backgroundColor: bg,
         backgroundImage: `radial-gradient(90% 70% at 50% 40%, transparent 30%, ${withAlpha(bg, 0.9)} 100%), linear-gradient(${withAlpha(primary, 0.07)} 1px, transparent 1px), linear-gradient(90deg, ${withAlpha(primary, 0.07)} 1px, transparent 1px)`,
-        backgroundSize: '100% 100%, 8cqh 8cqh, 8cqh 8cqh',
+        backgroundSize: '100% 100%, 8cqmin 8cqmin, 8cqmin 8cqmin',
       };
     case 'carbon':
       return {
@@ -73,7 +78,7 @@ function useClock(enabled: boolean) {
 
 function HeadlightIcon({ on, color }: { on: boolean; color: string }) {
   return (
-    <svg viewBox="0 0 24 24" style={{ height: '7.5cqh', width: 'auto', overflow: 'visible' }} aria-hidden>
+    <svg viewBox="0 0 24 24" style={{ height: '7.5cqmin', width: 'auto', overflow: 'visible' }} aria-hidden>
       <path d="M13 5c4.5 0 8 3.1 8 7s-3.5 7-8 7c-1 0-1.6-.9-1.6-2V7c0-1.1.6-2 1.6-2Z" fill={on ? color : 'none'} stroke={color} strokeWidth="1.8" />
       {[7, 10.5, 14, 17.5].map((y) => (
         <path key={y} d={`M2.5 ${y - 1.2} L8.5 ${y}`} stroke={color} strokeWidth="1.8" strokeLinecap="round" />
@@ -84,7 +89,7 @@ function HeadlightIcon({ on, color }: { on: boolean; color: string }) {
 
 function BluetoothIcon({ color }: { color: string }) {
   return (
-    <svg viewBox="0 0 24 24" style={{ height: '7cqh', width: 'auto' }} aria-hidden>
+    <svg viewBox="0 0 24 24" style={{ height: '7cqmin', width: 'auto' }} aria-hidden>
       <path d="m7 7 10 10-5 5V2l5 5L7 17" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -98,7 +103,7 @@ function Gauge({ fraction, primary, accent }: { fraction: number; primary: strin
   const arc = circumference * sweep;
   const ticks = Array.from({ length: 11 }, (_, i) => i);
   return (
-    <svg viewBox="0 0 100 100" style={{ height: '82cqh', width: '82cqh', overflow: 'visible' }} aria-hidden>
+    <svg viewBox="0 0 100 100" style={{ height: '82cqmin', width: '82cqmin', overflow: 'visible' }} aria-hidden>
       <defs>
         <linearGradient id={`g-${id}`} x1="0" y1="1" x2="1" y2="0">
           <stop offset="0" stopColor={accent} />
@@ -144,37 +149,37 @@ function Battery({ level, accent, primary, font }: { level: number; accent: stri
   const color = low ? '#ff3b3b' : accent;
   const lit = Math.ceil(level / 10);
   return (
-    <div className="flex items-center" style={{ gap: '2cqh', width: '58cqw' }}>
-      <div className="flex flex-1 items-center" style={{ gap: '0.9cqh', height: '5.5cqh', padding: '0.8cqh', border: `0.45cqh solid ${withAlpha(color, 0.55)}`, borderRadius: '1.4cqh' }}>
+    <div className="flex items-center" style={{ gap: '2cqmin', width: '58cqw' }}>
+      <div className="flex flex-1 items-center" style={{ gap: '0.9cqmin', height: '5.5cqmin', padding: '0.8cqmin', border: `0.45cqmin solid ${withAlpha(color, 0.55)}`, borderRadius: '1.4cqmin' }}>
         {Array.from({ length: 10 }, (_, i) => (
           <span
             key={i}
             className="h-full flex-1"
             style={{
-              borderRadius: '0.5cqh',
+              borderRadius: '0.5cqmin',
               background: i < lit ? color : withAlpha(color, 0.1),
-              boxShadow: i < lit ? `0 0 1.6cqh ${withAlpha(color, 0.6)}` : undefined,
+              boxShadow: i < lit ? `0 0 1.6cqmin ${withAlpha(color, 0.6)}` : undefined,
               transition: 'background 0.3s',
             }}
           />
         ))}
       </div>
-      <span style={{ fontFamily: font, fontSize: '6cqh', color: low ? color : primary, minWidth: '13cqh', textAlign: 'right', fontWeight: 600 }}>
+      <span style={{ fontFamily: font, fontSize: '6cqmin', color: low ? color : primary, minWidth: '13cqmin', textAlign: 'right', fontWeight: 600 }}>
         {Math.round(level)}%
       </span>
     </div>
   );
 }
 
-function DisplayScreenInner({ theme, layout, values, units, clock24h, animated = true, liveBattery, editor, className, label }: DisplayScreenProps) {
+function DisplayScreenInner({ theme, layout, values, units, clock24h, animated = true, orientation = 'landscape', fitHeight = false, liveBattery, editor, className, label }: DisplayScreenProps) {
   const visible = layout.filter((e) => e.visible);
   const now = useClock(visible.some((e) => e.id === 'clock'));
   const { primary, accent, glow } = theme;
   const font = FONT_FAMILIES[theme.font];
   const g = glow / 100;
-  const glowText = g > 0 ? `0 0 ${(1.2 * g).toFixed(2)}cqh ${withAlpha(primary, 0.9)}, 0 0 ${(5 * g).toFixed(2)}cqh ${withAlpha(primary, 0.55)}` : 'none';
-  const glowFilter = g > 0 ? `drop-shadow(0 0 ${(1.6 * g).toFixed(2)}cqh ${withAlpha(primary, 0.85)}) drop-shadow(0 0 ${(4 * g).toFixed(2)}cqh ${withAlpha(primary, 0.4)})` : undefined;
-  const accentGlow = g > 0 ? `0 0 ${(2.5 * g).toFixed(2)}cqh ${withAlpha(accent, 0.7)}` : 'none';
+  const glowText = g > 0 ? `0 0 ${(1.2 * g).toFixed(2)}cqmin ${withAlpha(primary, 0.9)}, 0 0 ${(5 * g).toFixed(2)}cqmin ${withAlpha(primary, 0.55)}` : 'none';
+  const glowFilter = g > 0 ? `drop-shadow(0 0 ${(1.6 * g).toFixed(2)}cqmin ${withAlpha(primary, 0.85)}) drop-shadow(0 0 ${(4 * g).toFixed(2)}cqmin ${withAlpha(primary, 0.4)})` : undefined;
+  const accentGlow = g > 0 ? `0 0 ${(2.5 * g).toFixed(2)}cqmin ${withAlpha(accent, 0.7)}` : 'none';
   const speed = formatSpeed(values.speed, units);
   const battery = liveBattery ?? values.battery;
   const speedFraction = Math.min(1, values.speed / 25);
@@ -183,15 +188,15 @@ function DisplayScreenInner({ theme, layout, values, units, clock24h, animated =
     switch (el.id) {
       case 'speed':
         return theme.font === 'segment' ? (
-          <SevenSegment value={String(speed).padStart(2, ' ')} color={primary} height="36cqh" glow={glowFilter} />
+          <SevenSegment value={String(speed).padStart(2, ' ')} color={primary} height="36cqmin" glow={glowFilter} />
         ) : (
-          <span style={{ fontFamily: font, fontWeight: SPEED_WEIGHT[theme.font], fontSize: '44cqh', lineHeight: 0.9, color: primary, textShadow: glowText, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+          <span style={{ fontFamily: font, fontWeight: SPEED_WEIGHT[theme.font], fontSize: '44cqmin', lineHeight: 0.9, color: primary, textShadow: glowText, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
             {speed}
           </span>
         );
       case 'unit':
         return (
-          <span style={{ fontFamily: font, fontSize: '6.2cqh', color: accent, letterSpacing: '0.18em', fontWeight: 600, textShadow: accentGlow }}>
+          <span style={{ fontFamily: font, fontSize: '6.2cqmin', color: accent, letterSpacing: '0.18em', fontWeight: 600, textShadow: accentGlow }}>
             {speedUnit(units).toUpperCase()}
           </span>
         );
@@ -204,13 +209,13 @@ function DisplayScreenInner({ theme, layout, values, units, clock24h, animated =
           <span
             style={{
               fontFamily: font,
-              fontSize: '6.8cqh',
+              fontSize: '6.8cqmin',
               fontWeight: 700,
               color: values.mode === 'sport' ? '#ffffff' : primary,
               background: values.mode === 'sport' ? accent : withAlpha(accent, 0.12),
-              border: `0.45cqh solid ${accent}`,
-              borderRadius: '1.6cqh',
-              padding: '0.6cqh 2.2cqh',
+              border: `0.45cqmin solid ${accent}`,
+              borderRadius: '1.6cqmin',
+              padding: '0.6cqmin 2.2cqmin',
               boxShadow: accentGlow,
               letterSpacing: '0.08em',
             }}
@@ -221,28 +226,28 @@ function DisplayScreenInner({ theme, layout, values, units, clock24h, animated =
       case 'trip':
         return (
           <span className="flex flex-col items-center" style={{ fontFamily: font, lineHeight: 1.05 }}>
-            <span style={{ fontSize: '3.8cqh', color: accent, letterSpacing: '0.2em', fontWeight: 600 }}>TRIP</span>
-            <span style={{ fontSize: '6.2cqh', color: primary, fontWeight: 600, textShadow: g > 0.4 ? glowText : undefined }}>
+            <span style={{ fontSize: '3.8cqmin', color: accent, letterSpacing: '0.2em', fontWeight: 600 }}>TRIP</span>
+            <span style={{ fontSize: '6.2cqmin', color: primary, fontWeight: 600, textShadow: g > 0.4 ? glowText : undefined }}>
               {formatDistance(values.trip, units)}
-              <span style={{ fontSize: '3.6cqh', marginLeft: '0.8cqh', color: withAlpha(primary, 0.7) }}>{distanceUnit(units)}</span>
+              <span style={{ fontSize: '3.6cqmin', marginLeft: '0.8cqmin', color: withAlpha(primary, 0.7) }}>{distanceUnit(units)}</span>
             </span>
           </span>
         );
       case 'light':
         return (
-          <span style={{ opacity: values.light ? 1 : 0.22, filter: values.light && g > 0 ? `drop-shadow(0 0 ${(2 * g).toFixed(2)}cqh ${accent})` : undefined }}>
+          <span style={{ opacity: values.light ? 1 : 0.22, filter: values.light && g > 0 ? `drop-shadow(0 0 ${(2 * g).toFixed(2)}cqmin ${accent})` : undefined }}>
             <HeadlightIcon on={values.light} color={values.light ? accent : primary} />
           </span>
         );
       case 'bluetooth':
         return (
-          <span style={{ opacity: values.bluetooth ? 1 : 0.22, filter: values.bluetooth && g > 0 ? `drop-shadow(0 0 ${(2 * g).toFixed(2)}cqh ${accent})` : undefined }}>
+          <span style={{ opacity: values.bluetooth ? 1 : 0.22, filter: values.bluetooth && g > 0 ? `drop-shadow(0 0 ${(2 * g).toFixed(2)}cqmin ${accent})` : undefined }}>
             <BluetoothIcon color={values.bluetooth ? accent : primary} />
           </span>
         );
       case 'clock':
         return (
-          <span style={{ fontFamily: font, fontSize: '6cqh', color: primary, fontWeight: 600, letterSpacing: '0.04em', fontVariantNumeric: 'tabular-nums' }}>
+          <span style={{ fontFamily: font, fontSize: '6cqmin', color: primary, fontWeight: 600, letterSpacing: '0.04em', fontVariantNumeric: 'tabular-nums' }}>
             {now.toLocaleTimeString(clock24h ? 'de-DE' : 'en-US', { hour: '2-digit', minute: '2-digit', hour12: !clock24h })}
           </span>
         );
@@ -250,7 +255,13 @@ function DisplayScreenInner({ theme, layout, values, units, clock24h, animated =
   };
 
   return (
-    <div className={cn('display-screen select-none', className)} style={backgroundFor(theme)} role="img" aria-label={label}>
+    <div
+      className={cn('display-screen select-none', fitHeight && 'display-screen--fit', className)}
+      style={{ ...backgroundFor(theme), aspectRatio: SCREEN_RATIO[orientation] }}
+      data-orientation={orientation}
+      role="img"
+      aria-label={label}
+    >
       {editor?.showGrid && (
         <div
           className="pointer-events-none absolute inset-0"
@@ -269,8 +280,8 @@ function DisplayScreenInner({ theme, layout, values, units, clock24h, animated =
             onPointerDown={editor ? (e) => editor.onPointerDown(e, el.id) : undefined}
             className={cn(
               'absolute flex items-center justify-center whitespace-nowrap',
-              editor && 'cursor-grab touch-none rounded-[1cqh] active:cursor-grabbing',
-              editor && (selected ? 'outline-2 outline-offset-[0.8cqh] outline-dashed' : 'hover:outline-1 hover:outline-offset-[0.8cqh] hover:outline-dashed'),
+              editor && 'cursor-grab touch-none rounded-[1cqmin] active:cursor-grabbing',
+              editor && (selected ? 'outline-2 outline-offset-[0.8cqmin] outline-dashed' : 'hover:outline-1 hover:outline-offset-[0.8cqmin] hover:outline-dashed'),
             )}
             style={{
               left: `${el.x}%`,
@@ -295,3 +306,16 @@ function DisplayScreenInner({ theme, layout, values, units, clock24h, animated =
 }
 
 export const DisplayScreen = memo(DisplayScreenInner);
+
+/**
+ * Vorschaukachel mit einheitlicher 4:3-Fläche: Querformat-Displays füllen sie, Hochformat-Displays stehen mittig darin.
+ * So bleiben Kartenraster gleich hoch, egal welches Modell gewählt ist.
+ */
+export function DisplayTile(props: DisplayScreenProps) {
+  if (props.orientation !== 'portrait') return <DisplayScreen {...props} />;
+  return (
+    <div className="grid aspect-[4/3] w-full place-items-center bg-[#020304]">
+      <DisplayScreen {...props} fitHeight />
+    </div>
+  );
+}

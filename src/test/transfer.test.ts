@@ -27,6 +27,12 @@ describe('transfer files', () => {
     expect(parsed.settings?.language).toBe('en');
   });
 
+  it('converts an old landscape MAX G3 layout to portrait on import', () => {
+    const file = buildTransferFile('backup', { layouts: { 'max-g3': presetLayout('sport') } });
+    const parsed = parseImport(JSON.stringify(file), DEFAULT_SETTINGS);
+    expect(parsed.layouts['max-g3']).toEqual(presetLayout('sport', 'portrait'));
+  });
+
   it('rejects foreign or broken files', () => {
     expect(() => parseImport('{not json', DEFAULT_SETTINGS)).toThrow(ImportError);
     expect(() => parseImport(JSON.stringify({ app: 'other' }), DEFAULT_SETTINGS)).toThrow(ImportError);

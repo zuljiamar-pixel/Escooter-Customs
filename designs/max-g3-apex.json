@@ -21,15 +21,15 @@
   ],
   "layouts": {
     "max-g3": [
-      { "id": "speed", "x": 50, "y": 48, "scale": 0.62, "visible": true },
-      { "id": "unit", "x": 50, "y": 66, "scale": 0.8, "visible": true },
-      { "id": "gauge", "x": 50, "y": 54, "scale": 1.08, "visible": true },
-      { "id": "battery", "x": 80, "y": 91, "scale": 0.5, "visible": true },
-      { "id": "mode", "x": 50, "y": 84, "scale": 0.75, "visible": true },
-      { "id": "trip", "x": 15, "y": 90, "scale": 0.8, "visible": true },
-      { "id": "light", "x": 81, "y": 9, "scale": 0.85, "visible": true },
-      { "id": "bluetooth", "x": 91, "y": 9, "scale": 0.85, "visible": true },
-      { "id": "clock", "x": 12, "y": 9, "scale": 0.9, "visible": true }
+      { "id": "speed", "x": 50, "y": 35.5, "scale": 0.72, "visible": true },
+      { "id": "unit", "x": 50, "y": 49.5, "scale": 0.85, "visible": true },
+      { "id": "gauge", "x": 50, "y": 38, "scale": 1.05, "visible": true },
+      { "id": "battery", "x": 50, "y": 90, "scale": 1.05, "visible": true },
+      { "id": "mode", "x": 50, "y": 61, "scale": 0.85, "visible": true },
+      { "id": "trip", "x": 50, "y": 77, "scale": 1, "visible": true },
+      { "id": "light", "x": 89, "y": 6, "scale": 0.9, "visible": true },
+      { "id": "bluetooth", "x": 78, "y": 6, "scale": 0.9, "visible": true },
+      { "id": "clock", "x": 17, "y": 6, "scale": 0.95, "visible": true }
     ]
   },
   "bootDesigns": [

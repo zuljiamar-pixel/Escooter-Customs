@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ELEMENT_IDS, presetLayout, resolveLayout } from '../data/layouts';
+import { ELEMENT_IDS, migrateLayout, presetLayout, resolveLayout } from '../data/layouts';
 import { BOOT_TEMPLATES, bootFromTemplate } from '../data/bootTemplates';
 import { ALL_BUILTIN_THEMES } from '../data/themes';
 import { DEFAULT_PREVIEW, DEFAULT_SETTINGS } from '../store/defaults';
@@ -55,14 +55,37 @@ describe('sanitizeLayout', () => {
   });
 
   it('keeps every preset element inside the display', () => {
-    for (const id of ['classic', 'sport', 'minimal', 'arc'] as const) {
-      for (const el of presetLayout(id)) {
-        expect(el.x).toBeGreaterThanOrEqual(0);
-        expect(el.x).toBeLessThanOrEqual(100);
-        expect(el.y).toBeGreaterThanOrEqual(0);
-        expect(el.y).toBeLessThanOrEqual(100);
+    for (const orientation of ['landscape', 'portrait'] as const) {
+      for (const id of ['classic', 'sport', 'minimal', 'arc'] as const) {
+        const layout = presetLayout(id, orientation);
+        expect(layout.map((e) => e.id)).toEqual(ELEMENT_IDS);
+        for (const el of layout) {
+          expect(el.x).toBeGreaterThanOrEqual(0);
+          expect(el.x).toBeLessThanOrEqual(100);
+          expect(el.y).toBeGreaterThanOrEqual(0);
+          expect(el.y).toBeLessThanOrEqual(100);
+        }
       }
     }
+  });
+
+  it('uses the portrait presets for portrait displays', () => {
+    expect(resolveLayout('sport', undefined, 'portrait')).toEqual(presetLayout('sport', 'portrait'));
+    expect(resolveLayout('custom', undefined, 'portrait')).toEqual(presetLayout('classic', 'portrait'));
+    expect(presetLayout('classic', 'portrait')).not.toEqual(presetLayout('classic', 'landscape'));
+  });
+});
+
+describe('migrateLayout', () => {
+  it('turns an untouched landscape preset into the portrait preset on the MAX G3', () => {
+    expect(migrateLayout('max-g3', presetLayout('arc', 'landscape'))).toEqual(presetLayout('arc', 'portrait'));
+  });
+
+  it('leaves edited layouts and landscape models alone', () => {
+    const moved = presetLayout('classic', 'landscape').map((e) => (e.id === 'speed' ? { ...e, x: 40 } : e));
+    expect(migrateLayout('max-g3', moved)).toBe(moved);
+    const f3 = presetLayout('classic', 'landscape');
+    expect(migrateLayout('f3-pro', f3)).toBe(f3);
   });
 });
 

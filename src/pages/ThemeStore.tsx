@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { BookmarkPlus, Check, Eye, Heart, Search, Store, Wand } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
-import { DisplayScreen } from '../components/scooter/DisplayScreen';
+import { DisplayTile } from '../components/scooter/DisplayScreen';
+import { screenOf } from '../data/scooters';
 import { LiveDisplay } from '../components/scooter/LiveDisplay';
 import { Badge, EmptyState } from '../components/ui/Card';
 import { Button, IconButton } from '../components/ui/Button';
@@ -24,6 +25,7 @@ type Sort = 'featured' | 'name' | 'bright' | 'glow';
 
 export function ThemeStore() {
   const model = useModel();
+  const screen = screenOf(model);
   const { designs, favorites, toggleFavorite, applyTheme, addTheme, customLayouts, preview, settings } = useStore();
   const { t, l } = useI18n();
   const { navigate } = useNav();
@@ -144,7 +146,7 @@ export function ThemeStore() {
             return (
               <article key={theme.id} className="glass group flex animate-page-in flex-col overflow-hidden rounded-[var(--radius-card)] transition-all duration-300 hover:-translate-y-1 hover:border-accent/40" style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}>
                 <button type="button" onClick={() => setPreviewTheme(theme)} className="relative block" aria-label={t('store.previewOf', { name: theme.name })}>
-                  <DisplayScreen theme={theme} layout={resolveLayout(theme.layout, customLayouts[model])} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} />
+                  <DisplayTile theme={theme} layout={resolveLayout(theme.layout, customLayouts[model], screen)} orientation={screen} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} />
                   <span className="absolute inset-0 grid place-items-center bg-black/0 opacity-0 transition-all group-hover:bg-black/35 group-hover:opacity-100">
                     <span className="flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur">
                       <Eye className="size-3.5" /> {t('store.preview')}

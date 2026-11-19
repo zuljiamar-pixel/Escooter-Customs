@@ -398,7 +398,7 @@ export const de = {
   'boot.export.title': 'Export & Speichern',
   'boot.export.subtitle': 'Z. B. als Wallpaper, zum Teilen oder als Backup',
   'boot.export.size': 'Format',
-  'boot.export.size.display': 'Display 4:3',
+  'boot.export.size.display': 'Display {ratio}',
   'boot.export.size.hd': 'Display HD',
   'boot.export.size.phone': 'Handy-Wallpaper',
   'boot.export.size.desktop': 'Desktop 16:9',

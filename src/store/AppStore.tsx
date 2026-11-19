@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
 import { bootFromTemplate, BOOT_TEMPLATES } from '../data/bootTemplates';
+import { migrateLayout } from '../data/layouts';
 import { isModelId } from '../data/scooters';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { createId } from '../lib/id';
@@ -133,9 +134,11 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = usePersistentState<string[]>('favorites', () => [], (r) =>
     Array.isArray(r) ? r.filter((v): v is string => typeof v === 'string').slice(0, 200) : null,
   );
-  const [customLayouts, setCustomLayouts] = usePersistentState('layouts', defaultLayouts, (r) =>
-    sanitizePerModel(r, sanitizeLayout, defaultLayouts),
-  );
+  const [customLayouts, setCustomLayouts] = usePersistentState('layouts', defaultLayouts, (r) => {
+    const all = sanitizePerModel(r, sanitizeLayout, defaultLayouts);
+    if (all) for (const m of Object.keys(all) as ModelId[]) all[m] = migrateLayout(m, all[m]);
+    return all;
+  });
   const [bootDrafts, setBootDrafts] = usePersistentState('bootDrafts', defaultBootDrafts, (r) =>
     sanitizePerModel(r, sanitizeBootDraft, defaultBootDrafts),
   );

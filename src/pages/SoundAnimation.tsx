@@ -120,7 +120,7 @@ export function SoundAnimation() {
 
         <Card title={t('sound.boot.title')} subtitle={t('sound.boot.subtitle')} icon={Power}>
           <div className="overflow-hidden rounded-2xl ring-1 ring-fg/15">
-            <BootCanvas design={bootDrafts[model].design} playing={!settings.reducedMotion} label={bootDrafts[model].design.name} />
+            <BootCanvas design={bootDrafts[model].design} playing={!settings.reducedMotion} label={bootDrafts[model].design.name} tile />
           </div>
           <p className="mt-3 text-xs text-muted">
             {t('sound.boot.current', { name: bootDrafts[model].design.name, effect: t(`boot.effect.${bootDrafts[model].design.effect}`) })}

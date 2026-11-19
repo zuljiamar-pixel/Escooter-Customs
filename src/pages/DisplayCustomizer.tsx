@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
 import { ColorField } from '../components/color/ColorPicker';
-import { DisplayScreen } from '../components/scooter/DisplayScreen';
+import { DisplayTile } from '../components/scooter/DisplayScreen';
 import { LiveDisplay } from '../components/scooter/LiveDisplay';
 import { PreviewControls } from '../components/scooter/PreviewControls';
 import { SevenSegment } from '../components/scooter/SevenSegment';
@@ -31,7 +31,7 @@ import { Segmented, Slider } from '../components/ui/Form';
 import { ConfirmDialog, PromptDialog } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
 import { resolveLayout, LAYOUT_IDS } from '../data/layouts';
-import { SCOOTERS } from '../data/scooters';
+import { SCOOTERS, screenOf } from '../data/scooters';
 import { ORIGINAL_THEMES, STORE_THEMES, findBuiltinTheme } from '../data/themes';
 import { useNav } from '../hooks/useNav';
 import { useSound } from '../hooks/useSound';
@@ -67,6 +67,7 @@ const DESIGN_KEYS: (keyof DisplayTheme)[] = ['primary', 'background', 'accent', 
 
 export function DisplayCustomizer() {
   const model = useModel();
+  const screen = screenOf(model);
   const store = useStore();
   const { designs, savedThemes, customLayouts, preview, settings, updateDesign, applyTheme, resetDesign, saveThemeAs, saveEditedTheme, pushColorHistory, colorHistory } = store;
   const { t } = useI18n();
@@ -306,9 +307,10 @@ export function DisplayCustomizer() {
                       active ? 'border-accent/70 shadow-[0_0_20px_-8px_var(--ui-accent)]' : 'border-line hover:border-accent/40',
                     )}
                   >
-                    <DisplayScreen
+                    <DisplayTile
                       theme={{ ...theme, layout: id }}
-                      layout={resolveLayout(id, customLayouts[model])}
+                      layout={resolveLayout(id, customLayouts[model], screen)}
+                      orientation={screen}
                       values={preview}
                       units={settings.units}
                       clock24h={settings.clock24h}

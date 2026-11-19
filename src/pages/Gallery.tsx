@@ -3,7 +3,7 @@ import { Copy, Download, FileBraces, Gauge, ImagePlus, Images, Pencil, Play, Pow
 import { PageHeader } from '../components/layout/PageHeader';
 import { ImportButton } from '../components/ImportButton';
 import { BootCanvas } from '../components/boot/BootCanvas';
-import { DisplayScreen } from '../components/scooter/DisplayScreen';
+import { DisplayScreen, DisplayTile } from '../components/scooter/DisplayScreen';
 import { Badge, EmptyState, SectionLabel } from '../components/ui/Card';
 import { Button, IconButton } from '../components/ui/Button';
 import { CompatBadge } from '../components/ui/Compat';
@@ -12,11 +12,12 @@ import { ConfirmDialog, PromptDialog } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
 import { bundledDesignsFor, type BundledDesign } from '../data/bundledDesigns';
 import { resolveLayout } from '../data/layouts';
-import { SCOOTERS } from '../data/scooters';
+import { BOOT_EXPORT_SIZE, SCOOTERS, screenOf } from '../data/scooters';
 import { useNav } from '../hooks/useNav';
 import { useSound } from '../hooks/useSound';
 import { useI18n } from '../i18n';
 import { exportBootPng } from '../lib/bootRenderer';
+import { cn } from '../lib/cn';
 import { downloadBlob, downloadJson, safeFilename } from '../lib/download';
 import { useModel, useStore } from '../store/AppStore';
 import type { BootDesign, DisplayTheme } from '../store/types';
@@ -72,7 +73,8 @@ export function Gallery() {
 
   const exportBoot = async (design: BootDesign) => {
     try {
-      downloadBlob(await exportBootPng(design, 640, 480), `${safeFilename(design.name, 'boot-logo')}-640x480.png`);
+      const { w, h } = BOOT_EXPORT_SIZE[screenOf(design.model)];
+      downloadBlob(await exportBootPng(design, w, h), `${safeFilename(design.name, 'boot-logo')}-${w}x${h}.png`);
       toast(t('toast.exported'));
     } catch {
       toast(t('toast.exportFailed'), 'error');
@@ -87,6 +89,7 @@ export function Gallery() {
 
   const count = tab === 'themes' ? savedThemes.length : bootDesigns.length;
   const bundledDesigns = bundledDesignsFor(model);
+  const screen = screenOf(model);
 
   return (
     <div className="animate-page-in">
@@ -114,8 +117,8 @@ export function Gallery() {
               const active = designs[model].sourceId === design.theme.id;
               return (
                 <article key={design.theme.id} className="glass neon-border flex items-center gap-4 rounded-[var(--radius-card)] p-3 sm:p-4">
-                  <div className="w-32 shrink-0 overflow-hidden rounded-xl sm:w-44">
-                    <DisplayScreen theme={design.theme} layout={design.layout} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} label={design.theme.name} />
+                  <div className={cn('shrink-0 overflow-hidden rounded-xl', screenOf(design.model) === 'portrait' ? 'w-24 sm:w-32' : 'w-32 sm:w-44')}>
+                    <DisplayScreen theme={design.theme} layout={design.layout} orientation={screenOf(design.model)} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} label={design.theme.name} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex flex-wrap items-center gap-2">
@@ -180,7 +183,7 @@ export function Gallery() {
               return (
                 <article key={theme.id} className="glass flex flex-col overflow-hidden rounded-[var(--radius-card)]">
                   <button type="button" onClick={() => applyTheme(theme)} aria-label={t('gallery.applyNamed', { name: theme.name })}>
-                    <DisplayScreen theme={theme} layout={resolveLayout(theme.layout, customLayouts[model])} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} />
+                    <DisplayTile theme={theme} layout={resolveLayout(theme.layout, customLayouts[model], screen)} orientation={screen} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} />
                   </button>
                   <div className="flex flex-1 flex-col p-4">
                     <div className="mb-3 flex items-start justify-between gap-2">
@@ -246,7 +249,7 @@ export function Gallery() {
                   onMouseEnter={() => setHovered(design.id)}
                   onMouseLeave={() => setHovered((h) => (h === design.id ? null : h))}
                 >
-                  <BootCanvas design={design} playing={hovered === design.id} label={design.name} />
+                  <BootCanvas design={design} playing={hovered === design.id} label={design.name} tile />
                   <button
                     type="button"
                     onClick={() => setHovered((h) => (h === design.id ? null : design.id))}

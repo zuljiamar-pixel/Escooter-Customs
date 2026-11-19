@@ -1,10 +1,13 @@
-import type { ElementId, LayoutElement, LayoutId } from '../store/types';
+import type { ElementId, LayoutElement, LayoutId, ModelId, ScreenOrientation } from '../store/types';
+import { screenOf } from './scooters';
 
 export const ELEMENT_IDS: ElementId[] = ['speed', 'unit', 'gauge', 'battery', 'mode', 'trip', 'light', 'bluetooth', 'clock'];
 
 type Preset = Record<ElementId, [x: number, y: number, scale: number, visible: boolean]>;
+type PresetId = Exclude<LayoutId, 'custom'>;
 
-const PRESETS: Record<Exclude<LayoutId, 'custom'>, Preset> = {
+/** Vorlagen für Querformat-Displays (4:3). Positionen in Prozent der Displaybreite bzw. -höhe. */
+const LANDSCAPE: Record<PresetId, Preset> = {
   classic: {
     clock: [13, 10, 1, true],
     bluetooth: [80, 10, 1, true],
@@ -51,6 +54,56 @@ const PRESETS: Record<Exclude<LayoutId, 'custom'>, Preset> = {
   },
 };
 
+/** Vorlagen für Hochformat-Displays (3:4) wie beim MAX G3: Statuszeile oben, Werte untereinander. */
+const PORTRAIT: Record<PresetId, Preset> = {
+  classic: {
+    clock: [17, 6, 1, true],
+    bluetooth: [78, 6, 1, true],
+    light: [89, 6, 1, true],
+    speed: [50, 31, 1.1, true],
+    unit: [50, 52, 1, true],
+    mode: [50, 64, 1.05, true],
+    trip: [50, 78, 1.1, true],
+    battery: [50, 92, 1.2, true],
+    gauge: [50, 40, 1, false],
+  },
+  sport: {
+    clock: [17, 6, 1, true],
+    bluetooth: [78, 6, 1, true],
+    light: [89, 6, 1, true],
+    speed: [50, 30, 1.3, true],
+    unit: [50, 53, 1, true],
+    mode: [27, 70, 1.3, true],
+    trip: [72, 70, 1.1, true],
+    battery: [50, 91, 1.2, true],
+    gauge: [50, 40, 1, false],
+  },
+  minimal: {
+    clock: [17, 6, 1, false],
+    bluetooth: [78, 6, 1, false],
+    light: [88, 6, 0.95, true],
+    mode: [13, 6, 0.9, true],
+    speed: [50, 37, 1.35, true],
+    unit: [50, 62, 1.05, true],
+    trip: [50, 80, 1, false],
+    battery: [50, 88, 1.1, true],
+    gauge: [50, 40, 1, false],
+  },
+  arc: {
+    clock: [17, 6, 1, true],
+    bluetooth: [78, 6, 1, true],
+    light: [89, 6, 1, true],
+    gauge: [50, 38, 1.05, true],
+    speed: [50, 35.5, 0.72, true],
+    unit: [50, 49.5, 0.9, true],
+    mode: [50, 61, 0.9, true],
+    trip: [50, 78, 1.05, true],
+    battery: [50, 91, 1.1, true],
+  },
+};
+
+const PRESETS: Record<ScreenOrientation, Record<PresetId, Preset>> = { landscape: LANDSCAPE, portrait: PORTRAIT };
+
 const toElements = (preset: Preset): LayoutElement[] =>
   ELEMENT_IDS.map((id) => {
     const [x, y, scale, visible] = preset[id];
@@ -58,14 +111,34 @@ const toElements = (preset: Preset): LayoutElement[] =>
   });
 
 export const LAYOUT_IDS: LayoutId[] = ['classic', 'sport', 'minimal', 'arc', 'custom'];
+const PRESET_IDS: PresetId[] = ['classic', 'sport', 'minimal', 'arc'];
 
-export function presetLayout(id: Exclude<LayoutId, 'custom'>): LayoutElement[] {
-  return toElements(PRESETS[id]);
+export function presetLayout(id: PresetId, orientation: ScreenOrientation = 'landscape'): LayoutElement[] {
+  return toElements(PRESETS[orientation][id]);
 }
 
-export const DEFAULT_CUSTOM_LAYOUT = presetLayout('classic');
+/** Ausgangslayout für „Custom Dashboard“ */
+export const defaultCustomLayout = (orientation: ScreenOrientation = 'landscape') => presetLayout('classic', orientation);
 
-export function resolveLayout(id: LayoutId, custom: LayoutElement[] | undefined): LayoutElement[] {
-  if (id === 'custom') return custom && custom.length ? custom : DEFAULT_CUSTOM_LAYOUT;
-  return presetLayout(id);
+export function resolveLayout(id: LayoutId, custom: LayoutElement[] | undefined, orientation: ScreenOrientation = 'landscape'): LayoutElement[] {
+  if (id === 'custom') return custom && custom.length ? custom : defaultCustomLayout(orientation);
+  return presetLayout(id, orientation);
+}
+
+const sameLayout = (a: LayoutElement[], b: LayoutElement[]) =>
+  a.length === b.length &&
+  a.every((el) => {
+    const o = b.find((x) => x.id === el.id);
+    return !!o && o.x === el.x && o.y === el.y && o.scale === el.scale && o.visible === el.visible;
+  });
+
+/**
+ * Frühere Versionen haben jedes Display im Querformat gezeigt. Liegt für ein Hochformat-Modell noch eine unveränderte
+ * Querformat-Vorlage vor (gespeichert oder importiert), wird sie durch die passende Hochformat-Vorlage ersetzt.
+ * Selbst verschobene Layouts bleiben unangetastet.
+ */
+export function migrateLayout(model: ModelId, layout: LayoutElement[]): LayoutElement[] {
+  if (screenOf(model) !== 'portrait') return layout;
+  const match = PRESET_IDS.find((id) => sameLayout(layout, presetLayout(id, 'landscape')));
+  return match ? presetLayout(match, 'portrait') : layout;
 }

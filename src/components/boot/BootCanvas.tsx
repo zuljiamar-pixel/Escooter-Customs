@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { BOOT_HOLD, ensureBootFonts, loadBootAssets, renderBootFrame, type BootAssets } from '../../lib/bootRenderer';
 import { cn } from '../../lib/cn';
+import { screenOf } from '../../data/scooters';
 import type { BootDesign } from '../../store/types';
 
 interface BootCanvasProps {
@@ -15,9 +16,12 @@ interface BootCanvasProps {
   onTime?: (seconds: number) => void;
   className?: string;
   label?: string;
+  /** In einer einheitlichen 4:3-Kachel zeigen (Hochformat steht mittig) */
+  tile?: boolean;
 }
 
-export function BootCanvas({ design, playing = false, loop = true, restartKey = 0, seek = null, onTime, className, label }: BootCanvasProps) {
+export function BootCanvas({ design, playing = false, loop = true, restartKey = 0, seek = null, onTime, className, label, tile = false }: BootCanvasProps) {
+  const portrait = screenOf(design.model) === 'portrait';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [assets, setAssets] = useState<BootAssets>({ logo: null, tinted: null });
@@ -94,9 +98,15 @@ export function BootCanvas({ design, playing = false, loop = true, restartKey = 
     return () => cancelAnimationFrame(raf);
   }, [design, assets, size, playing, loop, seek, fontsReady, restartKey]);
 
-  return (
-    <div ref={wrapRef} className={cn('relative aspect-[4/3] w-full overflow-hidden bg-black', className)}>
+  // Das Boot-Logo hat dasselbe Seitenverhältnis wie das Display des Modells.
+  const canvas = (
+    <div
+      ref={wrapRef}
+      className={cn('relative overflow-hidden bg-black', portrait ? 'aspect-[3/4]' : 'aspect-[4/3]', tile && portrait ? 'h-full' : 'w-full', !tile && className)}
+    >
       <canvas ref={canvasRef} className="absolute inset-0 size-full" role="img" aria-label={label} />
     </div>
   );
+  if (!tile || !portrait) return canvas;
+  return <div className={cn('grid aspect-[4/3] w-full place-items-center bg-black', className)}>{canvas}</div>;
 }

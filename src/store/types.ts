@@ -1,4 +1,6 @@
 export type ModelId = 'max-g3' | 'f3-pro';
+/** Ausrichtung des Scooter-Displays: Querformat (4:3) oder Hochformat (3:4) */
+export type ScreenOrientation = 'landscape' | 'portrait';
 export type Lang = 'de' | 'en';
 export type Localized = Record<Lang, string>;
 

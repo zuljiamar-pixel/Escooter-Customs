@@ -1,4 +1,4 @@
-import type { Localized, ModelId } from '../store/types';
+import type { Localized, ModelId, ScreenOrientation } from '../store/types';
 
 export interface ScooterSpec {
   id: string;
@@ -13,6 +13,8 @@ export interface ScooterModel {
   tagline: Localized;
   /** Kurzbeschreibung des Displays */
   display: Localized;
+  /** Ausrichtung des Displays; bestimmt Seitenverhältnis, Layouts, Gehäuse und Boot-Logo */
+  screen: ScreenOrientation;
   /** Obergrenze für den Geschwindigkeits-Regler der Vorschau (EU-Variante E) */
   previewMaxKmh: number;
   wheelInch: number;
@@ -35,14 +37,15 @@ export const SCOOTERS: Record<ModelId, ScooterModel> = {
       de: 'Langstrecken-Pendler mit 11″-Reifen und großem 597-Wh-Akku',
       en: 'Long-range commuter with 11″ tires and a large 597 Wh battery',
     },
-    display: { de: '2,4″ TFT-Farbdisplay', en: '2.4″ color TFT display' },
+    display: { de: '2,4″ TFT-Farbdisplay im Hochformat', en: '2.4″ color TFT display, portrait' },
+    screen: 'portrait',
     previewMaxKmh: 25,
     wheelInch: 11,
     batteryWh: 597,
     rangeKm: 80,
     originalThemeId: 'original-max-g3',
     specs: [
-      { id: 'display', label: { de: 'Display', en: 'Display' }, value: { de: '2,4″ TFT-Farbdisplay', en: '2.4″ color TFT' } },
+      { id: 'display', label: { de: 'Display', en: 'Display' }, value: { de: '2,4″ TFT-Farbdisplay, Hochformat', en: '2.4″ color TFT, portrait' } },
       { id: 'battery', label: { de: 'Akku', en: 'Battery' }, value: { de: '597 Wh (48 V, 12,8 Ah)', en: '597 Wh (48 V, 12.8 Ah)' } },
       { id: 'range', label: { de: 'Reichweite', en: 'Range' }, value: { de: 'bis zu 80 km (Herstellerangabe, Eco)', en: 'up to 80 km (manufacturer claim, Eco)' } },
       {
@@ -67,6 +70,7 @@ export const SCOOTERS: Record<ModelId, ScooterModel> = {
       en: 'Compact all-rounder with 10″ tires and a 477 Wh battery',
     },
     display: { de: '2,4″ TFT-Farbdisplay', en: '2.4″ color TFT display' },
+    screen: 'landscape',
     previewMaxKmh: 25,
     wheelInch: 10,
     batteryWh: 477,
@@ -99,6 +103,17 @@ export const SCOOTERS: Record<ModelId, ScooterModel> = {
     ],
   },
 };
+
+export const screenOf = (model: ModelId): ScreenOrientation => SCOOTERS[model].screen;
+
+/** Boot-Logo-Export in Displaygröße (Querformat 4:3 bzw. Hochformat 3:4) */
+export const BOOT_EXPORT_SIZE: Record<ScreenOrientation, { w: number; h: number; hdW: number; hdH: number; ratio: string }> = {
+  landscape: { w: 640, h: 480, hdW: 1280, hdH: 960, ratio: '4:3' },
+  portrait: { w: 480, h: 640, hdW: 960, hdH: 1280, ratio: '3:4' },
+};
+
+/** CSS-Seitenverhältnis des Displays */
+export const SCREEN_RATIO: Record<ScreenOrientation, string> = { landscape: '4 / 3', portrait: '3 / 4' };
 
 export const MODEL_IDS: ModelId[] = ['max-g3', 'f3-pro'];
 

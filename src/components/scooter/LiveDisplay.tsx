@@ -1,5 +1,5 @@
 import { resolveLayout } from '../../data/layouts';
-import { SCOOTERS } from '../../data/scooters';
+import { SCOOTERS, screenOf } from '../../data/scooters';
 import { useI18n } from '../../i18n';
 import { useStore } from '../../store/AppStore';
 import { useBluetooth } from '../../store/BluetoothContext';
@@ -22,13 +22,15 @@ export function LiveDisplay({ model, theme, housing = true, className }: LiveDis
   const { result, status } = useBluetooth();
   const { t } = useI18n();
   const active = theme ?? designs[model].theme;
-  const layout = resolveLayout(active.layout, customLayouts[model]);
+  const screen = screenOf(model);
+  const layout = resolveLayout(active.layout, customLayouts[model], screen);
   const liveBattery = status === 'connected' ? (result?.battery ?? null) : null;
 
-  const screen = (
+  const display = (
     <DisplayScreen
       theme={active}
       layout={layout}
+      orientation={screen}
       values={{ ...preview, bluetooth: preview.bluetooth || status === 'connected' }}
       units={settings.units}
       clock24h={settings.clock24h}
@@ -38,10 +40,14 @@ export function LiveDisplay({ model, theme, housing = true, className }: LiveDis
     />
   );
 
-  if (!housing) return <div className={cn('overflow-hidden rounded-2xl', className)}>{screen}</div>;
+  if (!housing) {
+    const bare = <div className={cn('overflow-hidden rounded-2xl', className)}>{display}</div>;
+    // Hochformat ohne Gehäuse: so breit, dass es so hoch wird wie ein Querformat-Display an derselben Stelle.
+    return screen === 'portrait' ? <div className="mx-auto w-[66%] max-w-[360px]">{bare}</div> : bare;
+  }
   return (
     <DisplayMockup model={model} accent={active.accent} className={className}>
-      {screen}
+      {display}
     </DisplayMockup>
   );
 }

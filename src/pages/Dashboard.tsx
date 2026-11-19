@@ -14,12 +14,12 @@ import {
   Store,
   type LucideIcon,
 } from 'lucide-react';
-import { SCOOTERS } from '../data/scooters';
+import { SCOOTERS, screenOf } from '../data/scooters';
 import { PageHeader } from '../components/layout/PageHeader';
 import { LiveDisplay } from '../components/scooter/LiveDisplay';
 import { PreviewControls } from '../components/scooter/PreviewControls';
 import { ScooterIllustration } from '../components/scooter/ScooterIllustration';
-import { DisplayScreen } from '../components/scooter/DisplayScreen';
+import { DisplayTile } from '../components/scooter/DisplayScreen';
 import { Badge, Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { PreviewNotice } from '../components/ui/Compat';
@@ -61,6 +61,7 @@ function BatteryRing({ value, live }: { value: number; live: boolean }) {
 
 export function Dashboard() {
   const model = useModel();
+  const screen = screenOf(model);
   const { designs, savedThemes, customLayouts, preview, settings, applyTheme } = useStore();
   const ble = useBluetooth();
   const { navigate } = useNav();
@@ -211,7 +212,7 @@ export function Dashboard() {
                 }}
                 className="glass group overflow-hidden rounded-2xl text-left transition-all hover:-translate-y-0.5 hover:border-accent/50"
               >
-                <DisplayScreen theme={theme} layout={resolveLayout(theme.layout, customLayouts[model])} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} />
+                <DisplayTile theme={theme} layout={resolveLayout(theme.layout, customLayouts[model], screen)} orientation={screen} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} />
                 <div className="flex items-center justify-between gap-2 px-3 py-2.5">
                   <span className="truncate text-sm font-medium text-fg">{theme.name}</span>
                   <span className="shrink-0 text-xs text-accent opacity-0 transition-opacity group-hover:opacity-100">{t('common.apply')}</span>

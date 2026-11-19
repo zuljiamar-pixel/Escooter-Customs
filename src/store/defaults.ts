@@ -1,5 +1,6 @@
 import { bootFromTemplate, defaultTemplateFor } from '../data/bootTemplates';
-import { DEFAULT_CUSTOM_LAYOUT } from '../data/layouts';
+import { defaultCustomLayout } from '../data/layouts';
+import { screenOf } from '../data/scooters';
 import { ORIGINAL_THEMES } from '../data/themes';
 import type { ActiveDesign, BootDraft, LayoutElement, ModelId, PreviewValues, Settings } from './types';
 
@@ -40,8 +41,8 @@ export const defaultDesigns = (): Record<ModelId, ActiveDesign> => ({
 });
 
 export const defaultLayouts = (): Record<ModelId, LayoutElement[]> => ({
-  'max-g3': DEFAULT_CUSTOM_LAYOUT.map((e) => ({ ...e })),
-  'f3-pro': DEFAULT_CUSTOM_LAYOUT.map((e) => ({ ...e })),
+  'max-g3': defaultCustomLayout(screenOf('max-g3')),
+  'f3-pro': defaultCustomLayout(screenOf('f3-pro')),
 });
 
 export const defaultBootDraft = (model: ModelId): BootDraft => ({

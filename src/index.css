@@ -328,6 +328,11 @@ input[type='range'].range:focus-visible::-webkit-slider-thumb {
   aspect-ratio: 4 / 3;
   width: 100%;
 }
+.display-screen--fit {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+}
 .display-pixels {
   position: absolute;
   inset: 0;

@@ -29,7 +29,7 @@ import { Segmented, Select, Slider, Switch, TextField } from '../components/ui/F
 import { ConfirmDialog, PromptDialog } from '../components/ui/Modal';
 import { useToast } from '../components/ui/Toast';
 import { BOOT_TEMPLATES, bootFromTemplate, type BootTemplate } from '../data/bootTemplates';
-import { SCOOTERS } from '../data/scooters';
+import { BOOT_EXPORT_SIZE, SCOOTERS, screenOf } from '../data/scooters';
 import { useSound } from '../hooks/useSound';
 import { useCallbackStable } from '../hooks/useStableCallback';
 import { useI18n } from '../i18n';
@@ -42,13 +42,14 @@ import { BOOT_EFFECTS, BOOT_EMBLEMS } from '../store/sanitize';
 import { buildTransferFile } from '../store/transfer';
 import type { BootBackground, BootDesign } from '../store/types';
 
-const EXPORT_SIZES = {
-  display: { w: 640, h: 480 },
-  hd: { w: 1280, h: 960 },
-  phone: { w: 1080, h: 1920 },
-  desktop: { w: 1920, h: 1080 },
-} as const;
-type ExportSize = keyof typeof EXPORT_SIZES;
+type ExportSize = 'display' | 'hd' | 'phone' | 'desktop';
+const EXPORT_KEYS: ExportSize[] = ['display', 'hd', 'phone', 'desktop'];
+
+/** Exportgrößen; „Display“ und „HD“ folgen dem Seitenverhältnis des Modell-Displays. */
+function exportSizes(design: BootDesign): Record<ExportSize, { w: number; h: number }> {
+  const s = BOOT_EXPORT_SIZE[screenOf(design.model)];
+  return { display: { w: s.w, h: s.h }, hd: { w: s.hdW, h: s.hdH }, phone: { w: 1080, h: 1920 }, desktop: { w: 1920, h: 1080 } };
+}
 
 const TemplateButton = memo(function TemplateButton({ tpl, active, logo, label, showModel, onSelect }: { tpl: BootTemplate; active: boolean; logo: string | null; label: string; showModel: boolean; onSelect: (id: string) => void }) {
   const previewDesign = useMemo(() => ({ ...bootFromTemplate(tpl, `tpl-${tpl.templateId}`, 0), logo }), [tpl, logo]);
@@ -59,7 +60,7 @@ const TemplateButton = memo(function TemplateButton({ tpl, active, logo, label, 
       aria-pressed={active}
       className={cn('overflow-hidden rounded-2xl border text-left transition-all', active ? 'border-accent/70 shadow-[0_0_20px_-8px_var(--ui-accent)]' : 'border-line hover:border-accent/40')}
     >
-      <BootCanvas design={previewDesign} />
+      <BootCanvas design={previewDesign} tile />
       <span className={cn('flex items-center justify-between gap-1 px-2.5 py-1.5 text-[11px] font-medium', active ? 'bg-accent/10 text-accent' : 'text-muted')}>
         <span className="truncate">{label}</span>
         {showModel && <span className="shrink-0 font-display text-[9px] tracking-wider text-subtle">{SCOOTERS[tpl.model].short}</span>}
@@ -127,7 +128,7 @@ export function BootLogo() {
   const exportPng = async () => {
     setExporting('png');
     try {
-      const { w, h } = EXPORT_SIZES[exportSize];
+      const { w, h } = exportSizes(design)[exportSize];
       const blob = await exportBootPng(design, w, h);
       downloadBlob(blob, `${safeFilename(design.name, 'boot-logo')}-${w}x${h}.png`);
       play('success');
@@ -144,7 +145,7 @@ export function BootLogo() {
     setExporting('video');
     setVideoProgress(0);
     try {
-      const { w, h } = EXPORT_SIZES[exportSize];
+      const { w, h } = exportSizes(design)[exportSize];
       const { blob, ext } = await exportBootVideo(design, w, h, setVideoProgress);
       downloadBlob(blob, `${safeFilename(design.name, 'boot-logo')}-${w}x${h}.${ext}`);
       play('success');
@@ -389,7 +390,10 @@ export function BootLogo() {
               label={t('boot.export.size')}
               value={exportSize}
               onChange={setExportSize}
-              options={(Object.keys(EXPORT_SIZES) as ExportSize[]).map((k) => ({ value: k, label: `${t(`boot.export.size.${k}`)} · ${EXPORT_SIZES[k].w}×${EXPORT_SIZES[k].h}` }))}
+              options={EXPORT_KEYS.map((k) => {
+                const size = exportSizes(design)[k];
+                return { value: k, label: `${t(`boot.export.size.${k}`, { ratio: BOOT_EXPORT_SIZE[screenOf(design.model)].ratio })} · ${size.w}×${size.h}` };
+              })}
             />
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               <Button icon={ImagePlus} loading={exporting === 'png'} disabled={exporting !== null} onClick={() => void exportPng()}>

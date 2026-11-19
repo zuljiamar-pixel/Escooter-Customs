@@ -30,9 +30,10 @@ Recherche-Grundlage (10/2026):
 ## Funktionen
 
 - **Scooter-Auswahl** beim ersten Start, jederzeit wechselbar; je Modell eigenes Display-Gehäuse-Mockup, eigene Vorlagen und eigener Design-Stand.
+- **Display-Format je Modell:** MAX G3 im Hochformat (3:4), F3 Pro im Querformat (4:3). Layouts, Gehäuse, Boot-Logo und Export folgen dem Format; ältere, unveränderte Querformat-Layouts des MAX G3 werden beim Laden und Import automatisch umgestellt.
 - **Dashboard:** Live-Display, Akkustand (Vorschauwert oder – falls verfügbar – vom Gerät gelesen, klar gekennzeichnet), Verbindungsstatus, aktives Design, Schnellzugriff.
 - **Display-Customizer:** Neon-Blau, Rot, Grün, Lila, Orange und eigene RGB-Farben; Hintergrund- und Akzentfarbe; Leuchtintensität mit Kontrastprüfung (WCAG); 6 Schriftstile inkl. Siebensegment-LCD; 5 Layouts; 4 Hintergrundstile; Geschwindigkeit/Akku/Fahrmodus als Vorschau; Themes speichern, bearbeiten, löschen; Undo/Redo; Zufallsdesign; Originaldesign wiederherstellen.
-- **Boot-Logo-Editor:** Logo-Upload (Drag & Drop, PNG/JPG/WEBP/SVG/GIF, lokal auf 512 px verkleinert), Titel & Name, Farben, 7 Neon-Animationen, 4 Embleme, Vorlagen für MAX G3 und F3 Pro, Zeitleiste zum Scrubben, Export als **PNG** (4:3, HD, Handy-Wallpaper, Desktop), **Video** (WebM/MP4) und **JSON**. Vorschau und Export nutzen denselben Canvas-Renderer.
+- **Boot-Logo-Editor:** Logo-Upload (Drag & Drop, PNG/JPG/WEBP/SVG/GIF, lokal auf 512 px verkleinert), Titel & Name, Farben, 7 Neon-Animationen, 4 Embleme, Vorlagen für MAX G3 und F3 Pro, Zeitleiste zum Scrubben, Export als **PNG** (Displayformat 3:4 bzw. 4:3, HD, Handy-Wallpaper, Desktop), **Video** (WebM/MP4) und **JSON**. Vorschau und Export nutzen denselben Canvas-Renderer.
 - **Theme Store:** 15 kostenlose Themes mit Suche, Kategorien, Sortierung, Favoriten, Vorher/Nachher-Vergleich.
 - **Custom Dashboard:** Elemente per Maus/Touch ziehen, Raster & Einrasten, Größe/Position, Ein-/Ausblenden, Tastatursteuerung, Vorlagen, Undo/Redo.
 - **RGB Studio:** Farbkreis (Pointer & Pfeiltasten), Helligkeit, HEX/RGB-Eingabe, HEX/RGB/HSL kopieren, Farbharmonien, eigene Palette, Verlauf, direkt anwenden auf Display, App-Akzent oder Boot-Logo.

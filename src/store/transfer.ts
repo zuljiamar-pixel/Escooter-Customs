@@ -1,3 +1,4 @@
+import { migrateLayout } from '../data/layouts';
 import { isModelId } from '../data/scooters';
 import { sanitizeBoot, sanitizeLayout, sanitizeList, sanitizeSettings, sanitizeTheme } from './sanitize';
 import type { BootDesign, DisplayTheme, LayoutElement, ModelId, Settings } from './types';
@@ -57,7 +58,7 @@ export function parseImport(text: string, settingsFallback: Settings): ParsedImp
   if (typeof file.layouts === 'object' && file.layouts !== null) {
     for (const [model, value] of Object.entries(file.layouts as Record<string, unknown>)) {
       const layout = sanitizeLayout(value);
-      if (isModelId(model) && layout) layouts[model] = layout;
+      if (isModelId(model) && layout) layouts[model] = migrateLayout(model, layout);
     }
   }
   const settings = kind === 'backup' && file.settings ? sanitizeSettings(file.settings, settingsFallback) : null;
