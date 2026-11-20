@@ -41,6 +41,7 @@ type Preset = Exclude<LayoutId, 'custom'>;
 export function CustomDashboard() {
   const model = useModel();
   const screen = screenOf(model);
+  const maxKmh = SCOOTERS[model].previewMaxKmh;
   const { customLayouts, setCustomLayout, designs, updateDesign, preview, settings } = useStore();
   const { t } = useI18n();
   const toast = useToast();
@@ -211,7 +212,7 @@ export function CustomDashboard() {
                   units={settings.units}
                   clock24h={settings.clock24h}
                   animated={false}
-                  orientation={screen}
+                  orientation={screen} maxSpeed={maxKmh}
                   editor={{ selectedId: selected, onPointerDown, showGrid: grid }}
                 />
               </div>

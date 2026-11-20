@@ -1,7 +1,7 @@
 import { memo, useEffect, useId, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { mix, withAlpha } from '../../lib/color';
 import { cn } from '../../lib/cn';
-import { formatDistance, formatSpeed, speedUnit, distanceUnit } from '../../lib/units';
+import { formatDistance, formatSpeed, gaugeFraction, speedUnit, distanceUnit } from '../../lib/units';
 import { SCREEN_RATIO } from '../../data/scooters';
 import type { DisplayTheme, ElementId, FontId, LayoutElement, PreviewValues, ScreenOrientation, Units } from '../../store/types';
 import { SevenSegment } from './SevenSegment';
@@ -26,6 +26,8 @@ export interface DisplayScreenProps {
   units: Units;
   clock24h: boolean;
   animated?: boolean;
+  /** Höchste anzeigbare Geschwindigkeit in km/h; skaliert den Tacho (Standard 25) */
+  maxSpeed?: number;
   /** Ausrichtung des Displays (MAX G3: Hochformat). Größen skalieren mit der kürzeren Seite. */
   orientation?: ScreenOrientation;
   /** Füllt die Höhe des Elternelements statt seiner Breite (für Vorschaukacheln) */
@@ -171,7 +173,7 @@ function Battery({ level, accent, primary, font }: { level: number; accent: stri
   );
 }
 
-function DisplayScreenInner({ theme, layout, values, units, clock24h, animated = true, orientation = 'landscape', fitHeight = false, liveBattery, editor, className, label }: DisplayScreenProps) {
+function DisplayScreenInner({ theme, layout, values, units, clock24h, animated = true, maxSpeed = 25, orientation = 'landscape', fitHeight = false, liveBattery, editor, className, label }: DisplayScreenProps) {
   const visible = layout.filter((e) => e.visible);
   const now = useClock(visible.some((e) => e.id === 'clock'));
   const { primary, accent, glow } = theme;
@@ -180,9 +182,10 @@ function DisplayScreenInner({ theme, layout, values, units, clock24h, animated =
   const glowText = g > 0 ? `0 0 ${(1.2 * g).toFixed(2)}cqmin ${withAlpha(primary, 0.9)}, 0 0 ${(5 * g).toFixed(2)}cqmin ${withAlpha(primary, 0.55)}` : 'none';
   const glowFilter = g > 0 ? `drop-shadow(0 0 ${(1.6 * g).toFixed(2)}cqmin ${withAlpha(primary, 0.85)}) drop-shadow(0 0 ${(4 * g).toFixed(2)}cqmin ${withAlpha(primary, 0.4)})` : undefined;
   const accentGlow = g > 0 ? `0 0 ${(2.5 * g).toFixed(2)}cqmin ${withAlpha(accent, 0.7)}` : 'none';
-  const speed = formatSpeed(values.speed, units);
+  const shownKmh = Math.min(values.speed, maxSpeed);
+  const speed = formatSpeed(shownKmh, units);
   const battery = liveBattery ?? values.battery;
-  const speedFraction = Math.min(1, values.speed / 25);
+  const speedFraction = gaugeFraction(shownKmh, maxSpeed);
 
   const renderElement = (el: LayoutElement): ReactNode => {
     switch (el.id) {

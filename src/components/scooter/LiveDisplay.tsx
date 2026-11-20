@@ -23,6 +23,7 @@ export function LiveDisplay({ model, theme, housing = true, className }: LiveDis
   const { t } = useI18n();
   const active = theme ?? designs[model].theme;
   const screen = screenOf(model);
+  const maxKmh = SCOOTERS[model].previewMaxKmh;
   const layout = resolveLayout(active.layout, customLayouts[model], screen);
   const liveBattery = status === 'connected' ? (result?.battery ?? null) : null;
 
@@ -30,7 +31,7 @@ export function LiveDisplay({ model, theme, housing = true, className }: LiveDis
     <DisplayScreen
       theme={active}
       layout={layout}
-      orientation={screen}
+      orientation={screen} maxSpeed={maxKmh}
       values={{ ...preview, bluetooth: preview.bluetooth || status === 'connected' }}
       units={settings.units}
       clock24h={settings.clock24h}

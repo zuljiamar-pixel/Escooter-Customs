@@ -13,5 +13,8 @@ export function formatDistance(km: number, units: Units, digits = 1): string {
   return value.toFixed(digits);
 }
 
+/** Anteil der Tachoskala (0–1), den eine Geschwindigkeit füllt */
+export const gaugeFraction = (kmh: number, maxKmh: number) => (maxKmh > 0 ? Math.min(1, Math.max(0, kmh / maxKmh)) : 0);
+
 export const speedUnit = (units: Units) => (units === 'imperial' ? 'mph' : 'km/h');
 export const distanceUnit = (units: Units) => (units === 'imperial' ? 'mi' : 'km');

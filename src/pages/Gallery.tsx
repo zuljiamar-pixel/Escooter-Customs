@@ -90,6 +90,7 @@ export function Gallery() {
   const count = tab === 'themes' ? savedThemes.length : bootDesigns.length;
   const bundledDesigns = bundledDesignsFor(model);
   const screen = screenOf(model);
+  const maxKmh = SCOOTERS[model].previewMaxKmh;
 
   return (
     <div className="animate-page-in">
@@ -118,7 +119,7 @@ export function Gallery() {
               return (
                 <article key={design.theme.id} className="glass neon-border flex items-center gap-4 rounded-[var(--radius-card)] p-3 sm:p-4">
                   <div className={cn('shrink-0 overflow-hidden rounded-xl', screenOf(design.model) === 'portrait' ? 'w-24 sm:w-32' : 'w-32 sm:w-44')}>
-                    <DisplayScreen theme={design.theme} layout={design.layout} orientation={screenOf(design.model)} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} label={design.theme.name} />
+                    <DisplayScreen theme={design.theme} layout={design.layout} orientation={screenOf(design.model)} maxSpeed={SCOOTERS[design.model].previewMaxKmh} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} label={design.theme.name} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex flex-wrap items-center gap-2">
@@ -183,7 +184,7 @@ export function Gallery() {
               return (
                 <article key={theme.id} className="glass flex flex-col overflow-hidden rounded-[var(--radius-card)]">
                   <button type="button" onClick={() => applyTheme(theme)} aria-label={t('gallery.applyNamed', { name: theme.name })}>
-                    <DisplayTile theme={theme} layout={resolveLayout(theme.layout, customLayouts[model], screen)} orientation={screen} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} />
+                    <DisplayTile theme={theme} layout={resolveLayout(theme.layout, customLayouts[model], screen)} orientation={screen} maxSpeed={maxKmh} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} />
                   </button>
                   <div className="flex flex-1 flex-col p-4">
                     <div className="mb-3 flex items-start justify-between gap-2">

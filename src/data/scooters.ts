@@ -15,7 +15,7 @@ export interface ScooterModel {
   display: Localized;
   /** Ausrichtung des Displays; bestimmt Seitenverhältnis, Layouts, Gehäuse und Boot-Logo */
   screen: ScreenOrientation;
-  /** Obergrenze für den Geschwindigkeits-Regler der Vorschau (EU-Variante E) */
+  /** Obergrenze für Geschwindigkeits-Regler und Tacho der Vorschau (schnellste Variante des Modells) */
   previewMaxKmh: number;
   wheelInch: number;
   batteryWh: number;
@@ -39,7 +39,7 @@ export const SCOOTERS: Record<ModelId, ScooterModel> = {
     },
     display: { de: '2,4″ TFT-Farbdisplay im Hochformat', en: '2.4″ color TFT display, portrait' },
     screen: 'portrait',
-    previewMaxKmh: 25,
+    previewMaxKmh: 45,
     wheelInch: 11,
     batteryWh: 597,
     rangeKm: 80,
@@ -53,7 +53,7 @@ export const SCOOTERS: Record<ModelId, ScooterModel> = {
         label: { de: 'Motor', en: 'Motor' },
         value: { de: 'bis 2000 W Spitze · Nennleistung je nach Region (z. B. 500 W, Variante D)', en: 'up to 2000 W peak · rated power varies by region (e.g. 500 W, variant D)' },
       },
-      { id: 'speed', label: { de: 'Höchstgeschwindigkeit', en: 'Top speed' }, value: { de: '20 km/h (D) · 25 km/h (E) · regional abweichend', en: '20 km/h (D) · 25 km/h (E) · varies by region' } },
+      { id: 'speed', label: { de: 'Höchstgeschwindigkeit', en: 'Top speed' }, value: { de: '20 km/h (D) · 25 km/h (E) · bis ca. 45 km/h / 28 mph (US-Version) · regional abweichend', en: '20 km/h (D) · 25 km/h (E) · up to approx. 45 km/h / 28 mph (US version) · varies by region' } },
       { id: 'tires', label: { de: 'Reifen', en: 'Tires' }, value: { de: '11″ schlauchlos, selbstdichtend', en: '11″ tubeless, self-sealing' } },
       { id: 'climb', label: { de: 'Steigfähigkeit', en: 'Hill grade' }, value: { de: 'bis 30 %', en: 'up to 30 %' } },
       { id: 'water', label: { de: 'Wasserschutz', en: 'Water resistance' }, value: { de: 'IPX6 (Fahrzeug) · IPX7 (Akku)', en: 'IPX6 (vehicle) · IPX7 (battery)' } },

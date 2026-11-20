@@ -68,6 +68,7 @@ const DESIGN_KEYS: (keyof DisplayTheme)[] = ['primary', 'background', 'accent', 
 export function DisplayCustomizer() {
   const model = useModel();
   const screen = screenOf(model);
+  const maxKmh = SCOOTERS[model].previewMaxKmh;
   const store = useStore();
   const { designs, savedThemes, customLayouts, preview, settings, updateDesign, applyTheme, resetDesign, saveThemeAs, saveEditedTheme, pushColorHistory, colorHistory } = store;
   const { t } = useI18n();
@@ -310,7 +311,7 @@ export function DisplayCustomizer() {
                     <DisplayTile
                       theme={{ ...theme, layout: id }}
                       layout={resolveLayout(id, customLayouts[model], screen)}
-                      orientation={screen}
+                      orientation={screen} maxSpeed={maxKmh}
                       values={preview}
                       units={settings.units}
                       clock24h={settings.clock24h}

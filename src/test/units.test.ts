@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDistance, formatSpeed, speedUnit } from '../lib/units';
+import { formatDistance, formatSpeed, gaugeFraction, speedUnit } from '../lib/units';
 import { validateImageFile, MAX_UPLOAD_BYTES } from '../lib/image';
 import { safeFilename } from '../lib/download';
 import { mapBleError } from '../lib/bluetooth';
@@ -34,5 +34,14 @@ describe('bluetooth error mapping', () => {
     expect(mapBleError(err('SecurityError')).code).toBe('denied');
     expect(mapBleError(err('NetworkError')).code).toBe('connect-failed');
     expect(mapBleError(err('Whatever')).code).toBe('unknown');
+  });
+
+  it('fills the gauge relative to the model maximum', () => {
+    expect(gaugeFraction(0, 45)).toBe(0);
+    expect(gaugeFraction(22.5, 45)).toBe(0.5);
+    expect(gaugeFraction(45, 45)).toBe(1);
+    expect(gaugeFraction(60, 45)).toBe(1);
+    expect(gaugeFraction(-3, 45)).toBe(0);
+    expect(gaugeFraction(10, 0)).toBe(0);
   });
 });

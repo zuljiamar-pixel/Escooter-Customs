@@ -62,6 +62,7 @@ function BatteryRing({ value, live }: { value: number; live: boolean }) {
 export function Dashboard() {
   const model = useModel();
   const screen = screenOf(model);
+  const maxKmh = SCOOTERS[model].previewMaxKmh;
   const { designs, savedThemes, customLayouts, preview, settings, applyTheme } = useStore();
   const ble = useBluetooth();
   const { navigate } = useNav();
@@ -212,7 +213,7 @@ export function Dashboard() {
                 }}
                 className="glass group overflow-hidden rounded-2xl text-left transition-all hover:-translate-y-0.5 hover:border-accent/50"
               >
-                <DisplayTile theme={theme} layout={resolveLayout(theme.layout, customLayouts[model], screen)} orientation={screen} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} />
+                <DisplayTile theme={theme} layout={resolveLayout(theme.layout, customLayouts[model], screen)} orientation={screen} maxSpeed={maxKmh} values={preview} units={settings.units} clock24h={settings.clock24h} animated={false} />
                 <div className="flex items-center justify-between gap-2 px-3 py-2.5">
                   <span className="truncate text-sm font-medium text-fg">{theme.name}</span>
                   <span className="shrink-0 text-xs text-accent opacity-0 transition-opacity group-hover:opacity-100">{t('common.apply')}</span>
