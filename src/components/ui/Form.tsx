@@ -1,4 +1,4 @@
-import { useId, type InputHTMLAttributes, type ReactNode } from 'react';
+import { useEffect, useId, useState, type InputHTMLAttributes, type ReactNode } from 'react';
 import { ChevronDown, type LucideIcon } from 'lucide-react';
 import { cn } from '../../lib/cn';
 
@@ -37,6 +37,55 @@ export function Slider({ label, value, min, max, step = 1, onChange, format, cla
         style={{ ['--fill' as string]: `${fill}%` }}
         onChange={(e) => onChange(Number(e.target.value))}
       />
+    </div>
+  );
+}
+
+interface NumberFieldProps {
+  label: ReactNode;
+  value: number;
+  onChange: (value: number) => void;
+  unit?: string;
+  min?: number;
+  max?: number;
+  /** Nachkommastellen für die Anzeige */
+  decimals?: number;
+  hint?: ReactNode;
+  className?: string;
+}
+
+/** Zahlenfeld mit Einheit. Akzeptiert Komma und Punkt; ungültige Zwischenstände beim Tippen werden ignoriert. */
+export function NumberField({ label, value, onChange, unit, min = 0, max, decimals = 0, hint, className }: NumberFieldProps) {
+  const id = useId();
+  const shown = Number.isFinite(value) ? String(Number(value.toFixed(decimals))) : '';
+  const [text, setText] = useState(shown);
+  useEffect(() => setText(shown), [shown]);
+
+  const commit = (raw: string) => {
+    setText(raw);
+    const n = Number(raw.replace(',', '.'));
+    if (raw.trim() === '' || !Number.isFinite(n) || n < min) return;
+    onChange(max !== undefined ? Math.min(max, n) : n);
+  };
+
+  return (
+    <div className={cn('flex items-center justify-between gap-3 text-sm', className)}>
+      <label htmlFor={id} className="min-w-0 text-muted">
+        {label}
+        {hint && <span className="mt-0.5 block text-xs text-subtle">{hint}</span>}
+      </label>
+      <span className="flex shrink-0 items-center gap-2">
+        <input
+          id={id}
+          type="text"
+          inputMode={decimals > 0 ? 'decimal' : 'numeric'}
+          value={text}
+          onChange={(e) => commit(e.target.value)}
+          onBlur={() => setText(shown)}
+          className="h-9 w-20 rounded-lg border border-line bg-base-2/70 px-2 text-right font-mono text-sm text-fg tabular-nums outline-none focus:border-accent/70"
+        />
+        {unit !== undefined && <span className="w-10 text-xs text-subtle">{unit}</span>}
+      </span>
     </div>
   );
 }

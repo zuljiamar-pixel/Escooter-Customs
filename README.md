@@ -13,8 +13,8 @@ im futuristischen Neon-Dark-UI, mobile-first für Android und Desktop.
 | Kategorie | Funktionen |
 | --- | --- |
 | **1. Nur in der App** (funktioniert vollständig) | Display-Designer & Live-Vorschau, Theme Store, Galerie, eigene Themes, Boot-Logo-Editor inkl. PNG/Video/JSON-Export, Custom Dashboard, RGB Studio, UI-Sounds, Startanimationen, Backup/Import |
-| **2. Offiziell dokumentierte Schnittstelle** | Gerätesuche & Verbindung über die [Web Bluetooth API (W3C)](https://webbluetoothcg.github.io/web-bluetooth/); **nur lesend** Akkustand (Bluetooth SIG *Battery Service* `0x180F`) und Geräteinfos (*Device Information* `0x180A`) – nur wenn das Gerät sie bereitstellt. Fahrzeugeinstellungen & Firmware ausschließlich über die offizielle Segway-App. |
-| **3. Keine bestätigte Unterstützung** | Displayfarben/Themes, Boot-Logos, eigene Layouts oder Sounds auf den Scooter übertragen → nur Vorschau |
+| **2. Offiziell dokumentierte Schnittstelle** | Gerätesuche & Verbindung über die [Web Bluetooth API (W3C)](https://webbluetoothcg.github.io/web-bluetooth/); **nur lesend** Akkustand (Bluetooth SIG *Battery Service* `0x180F`) und Geräteinfos (*Device Information* `0x180A`) – nur wenn das Gerät sie bereitstellt. Echte Geschwindigkeit per GPS über die [Geolocation API (W3C)](https://www.w3.org/TR/geolocation/) des Browsers, nur mit Erlaubnis. Fahrzeugeinstellungen & Firmware ausschließlich über die offizielle Segway-App. |
+| **3. Keine bestätigte Unterstützung** | Displayfarben/Themes, Boot-Logos, eigene Layouts oder Sounds auf den Scooter übertragen → nur Vorschau; Radumdrehungen/Tacho des Scooters auslesen (nur über das inoffizielle Protokoll) |
 | **Bewusst ausgeschlossen** | Tempolimits, Firmware, Motorsteuerung, Sicherheitsfunktionen – die App schreibt **keine** Werte auf den Scooter und erfindet **keine** Bluetooth-Befehle |
 
 Recherche-Grundlage (10/2026):
@@ -39,6 +39,7 @@ Recherche-Grundlage (10/2026):
 - **RGB Studio:** Farbkreis (Pointer & Pfeiltasten), Helligkeit, HEX/RGB-Eingabe, HEX/RGB/HSL kopieren, Farbharmonien, eigene Palette, Verlauf, direkt anwenden auf Display, App-Akzent oder Boot-Logo.
 - **Design-Galerie:** alle eigenen Themes und Boot-Logos mit Vorschau; anwenden, bearbeiten, umbenennen, duplizieren, exportieren, löschen; Import.
 - **Sound & Animation:** 4 App-Startanimationen mit Vorschau, optionale synthetische UI-Sounds (Web Audio, 3 Pakete, Lautstärke), Bewegung reduzieren.
+- **Echt-Tacho:** echte Geschwindigkeit per GPS des Handys, angezeigt im eigenen Display-Design (Vollbild, Bildschirm bleibt an), mit Höchstwert, Strecke und Vergleich mit dem Scooter-Display; Reifen-Rechner (Reifengröße in Zoll oder gemessener Umfang + Umdrehungen pro Minute → km/h und umgekehrt) und Tacho-Abweichung bei abgefahrenem oder anderem Reifen.
 - **Scooter-Info:** technische Daten (als regional abweichend gekennzeichnet), Display-Infos, Modellvergleich, Kompatibilitätsmatrix.
 - **Bluetooth:** Gerätesuche, Statusanzeige, Fehlerbehandlung (abgebrochen, verweigert, Bluetooth aus, Timeout, Verbindungsabbruch …), Ereignisprotokoll, periodisches Neu-Lesen – ausschließlich lesend.
 - **Einstellungen:** Deutsch/Englisch, Dunkel/Hell/System, km/h ↔ mph, 24-h-Uhr, App-Akzentfarbe, Backup-Export/-Import, Speicherbelegung, alle Daten löschen.

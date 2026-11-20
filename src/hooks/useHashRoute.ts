@@ -9,6 +9,7 @@ export const ROUTES = [
   'rgb',
   'gallery',
   'sound',
+  'tacho',
   'info',
   'connect',
   'settings',

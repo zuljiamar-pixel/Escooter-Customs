@@ -8,6 +8,7 @@ import {
   LayoutTemplate,
   Palette,
   Power,
+  Satellite,
   Settings,
   Store,
   type LucideIcon,
@@ -31,6 +32,7 @@ export const NAV_ITEMS: Record<NavItem['id'], NavItem> = {
   store: { id: 'store', icon: Store, label: 'nav.store', short: 'nav.store.short' },
   gallery: { id: 'gallery', icon: Images, label: 'nav.gallery', short: 'nav.gallery.short' },
   sound: { id: 'sound', icon: AudioWaveform, label: 'nav.sound', short: 'nav.sound.short' },
+  tacho: { id: 'tacho', icon: Satellite, label: 'nav.tacho', short: 'nav.tacho.short' },
   info: { id: 'info', icon: Info, label: 'nav.info', short: 'nav.info.short' },
   connect: { id: 'connect', icon: Bluetooth, label: 'nav.connect', short: 'nav.connect.short' },
   settings: { id: 'settings', icon: Settings, label: 'nav.settings', short: 'nav.settings.short' },
@@ -39,8 +41,8 @@ export const NAV_ITEMS: Record<NavItem['id'], NavItem> = {
 export const NAV_GROUPS: { label: TKey; items: NavItem['id'][] }[] = [
   { label: 'nav.group.studio', items: ['dashboard', 'display', 'boot', 'layout', 'rgb'] },
   { label: 'nav.group.library', items: ['store', 'gallery'] },
-  { label: 'nav.group.scooter', items: ['info', 'connect'] },
+  { label: 'nav.group.scooter', items: ['tacho', 'info', 'connect'] },
   { label: 'nav.group.app', items: ['sound', 'settings'] },
 ];
 
-export const BOTTOM_ITEMS: NavItem['id'][] = ['dashboard', 'display', 'boot', 'rgb'];
+export const BOTTOM_ITEMS: NavItem['id'][] = ['dashboard', 'display', 'tacho', 'boot'];

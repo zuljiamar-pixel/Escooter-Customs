@@ -15,6 +15,7 @@ import { Dashboard } from './pages/Dashboard';
 import { DisplayCustomizer } from './pages/DisplayCustomizer';
 import { Gallery } from './pages/Gallery';
 import { RgbStudio } from './pages/RgbStudio';
+import { RealSpeed } from './pages/RealSpeed';
 import { ScooterInfo } from './pages/ScooterInfo';
 import { ScooterSelect } from './pages/ScooterSelect';
 import { Settings } from './pages/Settings';
@@ -33,6 +34,7 @@ const PAGES: Record<Exclude<RouteId, 'select'>, () => ReactNode> = {
   rgb: () => <RgbStudio />,
   gallery: () => <Gallery />,
   sound: () => <SoundAnimation />,
+  tacho: () => <RealSpeed />,
   info: () => <ScooterInfo />,
   connect: () => <Connection />,
   settings: () => <Settings />,

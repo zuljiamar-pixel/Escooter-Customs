@@ -69,6 +69,15 @@ export const COMPAT_ITEMS: CompatItem[] = [
     },
   },
   {
+    id: 'gps-speed',
+    level: 'official',
+    title: { de: 'Echte Geschwindigkeit per GPS', en: 'Real speed via GPS' },
+    detail: {
+      de: 'Über die Geolocation API (W3C) des Browsers, nur mit deiner Erlaubnis. Misst das Handy, nicht den Scooter; die Genauigkeit hängt vom GPS-Empfang ab.',
+      en: 'Via the browser’s Geolocation API (W3C), only with your permission. Measures the phone, not the scooter; accuracy depends on GPS reception.',
+    },
+  },
+  {
     id: 'official-app',
     level: 'official',
     title: { de: 'Fahrzeugeinstellungen & Firmware', en: 'Vehicle settings & firmware' },
@@ -102,6 +111,15 @@ export const COMPAT_ITEMS: CompatItem[] = [
     detail: {
       de: 'Nicht unterstützt. Layouts und Sounds wirken nur innerhalb der App.',
       en: 'Not supported. Layouts and sounds only apply inside the app.',
+    },
+  },
+  {
+    id: 'hw-speed',
+    level: 'unsupported',
+    title: { de: 'Radumdrehungen & Tacho des Scooters auslesen', en: 'Read wheel rotations & speed from the scooter' },
+    detail: {
+      de: 'Nur über das inoffizielle Segway-Protokoll erreichbar und wird deshalb bewusst nicht verwendet. Stattdessen gibt es GPS-Messung und Reifen-Rechner.',
+      en: 'Only reachable through the unofficial Segway protocol, so it is deliberately not used. GPS measurement and the tire calculator are offered instead.',
     },
   },
   {
