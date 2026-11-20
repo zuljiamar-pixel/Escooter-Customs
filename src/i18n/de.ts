@@ -119,6 +119,7 @@ export const de = {
 
   // Vorschauwerte
   'preview.speed': 'Geschwindigkeit',
+  'preview.speedExact': 'Beliebiger Wert',
   'preview.battery': 'Akkustand',
   'preview.mode': 'Fahrmodus',
   'preview.light': 'Licht',

@@ -117,5 +117,7 @@ describe('settings & preview', () => {
     expect(sanitizeSettings(null, DEFAULT_SETTINGS)).toEqual(DEFAULT_SETTINGS);
     expect(sanitizeSettings({ language: 'fr', volume: 7 }, DEFAULT_SETTINGS)).toMatchObject({ language: 'de', volume: 1 });
     expect(sanitizePreview({ battery: 140, mode: 'turbo' }, DEFAULT_PREVIEW)).toMatchObject({ battery: 100, mode: 'drive' });
+    expect(sanitizePreview({ speed: 120 }, DEFAULT_PREVIEW).speed).toBe(120);
+    expect(sanitizePreview({ speed: 5000 }, DEFAULT_PREVIEW).speed).toBe(999);
   });
 });

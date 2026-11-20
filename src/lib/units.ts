@@ -1,6 +1,6 @@
 import type { Units } from '../store/types';
 
-const KM_PER_MILE = 1.609344;
+export const KM_PER_MILE = 1.609344;
 
 export const kmhToMph = (kmh: number) => kmh / KM_PER_MILE;
 

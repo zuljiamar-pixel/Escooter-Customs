@@ -26,7 +26,7 @@ export interface DisplayScreenProps {
   units: Units;
   clock24h: boolean;
   animated?: boolean;
-  /** Höchste anzeigbare Geschwindigkeit in km/h; skaliert den Tacho (Standard 25) */
+  /** Endwert der Tachoskala in km/h (Standard 25). Höhere Werte werden trotzdem angezeigt, der Bogen bleibt dann voll. */
   maxSpeed?: number;
   /** Ausrichtung des Displays (MAX G3: Hochformat). Größen skalieren mit der kürzeren Seite. */
   orientation?: ScreenOrientation;
@@ -182,18 +182,19 @@ function DisplayScreenInner({ theme, layout, values, units, clock24h, animated =
   const glowText = g > 0 ? `0 0 ${(1.2 * g).toFixed(2)}cqmin ${withAlpha(primary, 0.9)}, 0 0 ${(5 * g).toFixed(2)}cqmin ${withAlpha(primary, 0.55)}` : 'none';
   const glowFilter = g > 0 ? `drop-shadow(0 0 ${(1.6 * g).toFixed(2)}cqmin ${withAlpha(primary, 0.85)}) drop-shadow(0 0 ${(4 * g).toFixed(2)}cqmin ${withAlpha(primary, 0.4)})` : undefined;
   const accentGlow = g > 0 ? `0 0 ${(2.5 * g).toFixed(2)}cqmin ${withAlpha(accent, 0.7)}` : 'none';
-  const shownKmh = Math.min(values.speed, maxSpeed);
-  const speed = formatSpeed(shownKmh, units);
+  const speed = formatSpeed(values.speed, units);
+  // Dreistellige Werte werden etwas kleiner gesetzt, damit sie nie über den Rand laufen.
+  const digitScale = String(speed).length > 2 ? 2.16 / String(speed).length : 1;
   const battery = liveBattery ?? values.battery;
-  const speedFraction = gaugeFraction(shownKmh, maxSpeed);
+  const speedFraction = gaugeFraction(values.speed, maxSpeed);
 
   const renderElement = (el: LayoutElement): ReactNode => {
     switch (el.id) {
       case 'speed':
         return theme.font === 'segment' ? (
-          <SevenSegment value={String(speed).padStart(2, ' ')} color={primary} height="36cqmin" glow={glowFilter} />
+          <SevenSegment value={String(speed).padStart(2, ' ')} color={primary} height={`${36 * digitScale}cqmin`} glow={glowFilter} />
         ) : (
-          <span style={{ fontFamily: font, fontWeight: SPEED_WEIGHT[theme.font], fontSize: '44cqmin', lineHeight: 0.9, color: primary, textShadow: glowText, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
+          <span style={{ fontFamily: font, fontWeight: SPEED_WEIGHT[theme.font], fontSize: `${44 * digitScale}cqmin`, lineHeight: 0.9, color: primary, textShadow: glowText, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' }}>
             {speed}
           </span>
         );

@@ -39,6 +39,9 @@ export const BOOT_EMBLEMS: BootEmblem[] = ['bolt', 'ring', 'wing', 'hex', 'none'
 export const BOOT_BACKGROUNDS: BootBackground[] = ['solid', 'radial', 'grid'];
 export const DRIVE_MODES: DriveMode[] = ['eco', 'drive', 'sport'];
 
+/** Höchster eingebbarer Vorschauwert in km/h (dreistellig) */
+export const MAX_PREVIEW_SPEED = 999;
+
 const DATA_URL_RE = /^data:image\/(png|jpeg|webp|gif|svg\+xml);base64,[a-z0-9+/=]+$/i;
 /** Max. Länge eines eingebetteten Logos (~3 MB Base64) */
 const MAX_LOGO_LENGTH = 3_000_000;
@@ -128,7 +131,7 @@ export function sanitizeList<T>(raw: unknown, item: (r: unknown) => T | null, ma
 export function sanitizePreview(raw: unknown, fallback: PreviewValues): PreviewValues {
   if (!isObj(raw)) return fallback;
   return {
-    speed: num(raw.speed, 0, 99, fallback.speed),
+    speed: num(raw.speed, 0, MAX_PREVIEW_SPEED, fallback.speed),
     battery: num(raw.battery, 0, 100, fallback.battery),
     mode: oneOf(raw.mode, DRIVE_MODES, fallback.mode),
     light: bool(raw.light, fallback.light),

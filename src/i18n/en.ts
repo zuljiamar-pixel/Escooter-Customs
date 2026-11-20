@@ -114,6 +114,7 @@ export const en: Dict = {
   'dash.recent': 'Recently saved',
 
   'preview.speed': 'Speed',
+  'preview.speedExact': 'Any value',
   'preview.battery': 'Battery level',
   'preview.mode': 'Riding mode',
   'preview.light': 'Light',
