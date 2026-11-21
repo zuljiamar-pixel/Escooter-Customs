@@ -7,6 +7,8 @@ import type {
   BootDesign,
   BootEffect,
   BootEmblem,
+  BootMedia,
+  BootMediaFit,
   DisplayTheme,
   DriveMode,
   ElementId,
@@ -37,6 +39,11 @@ export const CATEGORIES: ThemeCategory[] = ['neon', 'classic', 'sport', 'minimal
 export const BOOT_EFFECTS: BootEffect[] = ['fade', 'pulse', 'scan', 'glitch', 'ring', 'particles', 'hyperdrive'];
 export const BOOT_EMBLEMS: BootEmblem[] = ['bolt', 'ring', 'wing', 'hex', 'none'];
 export const BOOT_BACKGROUNDS: BootBackground[] = ['solid', 'radial', 'grid'];
+export const BOOT_MEDIA_FITS: BootMediaFit[] = ['cover', 'contain'];
+/** Längste Laufzeit eines Startbildschirms in Sekunden (Videos werden auf diese Länge gekürzt) */
+export const MAX_BOOT_DURATION = 15;
+/** Format der Schlüssel im lokalen Videospeicher */
+export const VIDEO_ID_RE = /^vid-[a-z0-9-]{4,60}$/;
 export const DRIVE_MODES: DriveMode[] = ['eco', 'drive', 'sport'];
 
 /** Höchster eingebbarer Vorschauwert in km/h (dreistellig) */
@@ -86,6 +93,16 @@ export function sanitizeLayout(raw: unknown): LayoutElement[] | null {
   return ELEMENT_IDS.map((id) => byId.get(id) ?? { id, x: 50, y: 50, scale: 1, visible: false });
 }
 
+function sanitizeMedia(raw: unknown): BootMedia | null {
+  if (!isObj(raw)) return null;
+  const fit = oneOf(raw.fit, BOOT_MEDIA_FITS, 'cover');
+  if (raw.kind === 'image' && typeof raw.src === 'string' && raw.src.length <= MAX_LOGO_LENGTH && DATA_URL_RE.test(raw.src)) {
+    return { kind: 'image', src: raw.src, fit };
+  }
+  if (raw.kind === 'video' && typeof raw.src === 'string' && VIDEO_ID_RE.test(raw.src)) return { kind: 'video', src: raw.src, fit };
+  return null;
+}
+
 export function sanitizeBoot(raw: unknown): BootDesign | null {
   if (!isObj(raw)) return null;
   if (typeof raw.id !== 'string' || !raw.id) return null;
@@ -110,9 +127,12 @@ export function sanitizeBoot(raw: unknown): BootDesign | null {
     background2: hex(raw.background2, '#062a3d'),
     backgroundStyle: oneOf(raw.backgroundStyle, BOOT_BACKGROUNDS, 'radial'),
     effect: oneOf(raw.effect, BOOT_EFFECTS, 'fade'),
-    duration: num(raw.duration, 1.5, 8, 3.2),
+    duration: num(raw.duration, 1.5, MAX_BOOT_DURATION, 3.2),
     glow: num(raw.glow, 0, 100, 70),
     showProgress: bool(raw.showProgress, true),
+    media: sanitizeMedia(raw.media),
+    mediaOverlay: bool(raw.mediaOverlay, false),
+    mediaDim: num(raw.mediaDim, 0, 80, 0),
     createdAt: num(raw.createdAt, 0, Number.MAX_SAFE_INTEGER, now),
     updatedAt: num(raw.updatedAt, 0, Number.MAX_SAFE_INTEGER, now),
   };

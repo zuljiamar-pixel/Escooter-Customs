@@ -54,6 +54,9 @@
       "duration": 3,
       "glow": 35,
       "showProgress": true,
+      "media": null,
+      "mediaOverlay": false,
+      "mediaDim": 0,
       "createdAt": 1794832146789,
       "updatedAt": 1794832146789
     }

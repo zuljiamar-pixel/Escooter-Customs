@@ -41,7 +41,7 @@ function supportsWebp(): boolean {
  * Liest eine Bilddatei, verkleinert sie auf maxSize Pixel (längste Seite) und gibt eine kompakte Data-URL zurück.
  * Transparenz bleibt erhalten (WebP bzw. PNG).
  */
-export async function processLogoFile(file: File, maxSize = 512): Promise<string> {
+export async function processLogoFile(file: File, maxSize = 512, quality = 0.9): Promise<string> {
   const problem = validateImageFile(file);
   if (problem) throw new ImageProcessingError(problem);
   const objectUrl = URL.createObjectURL(file);
@@ -57,7 +57,7 @@ export async function processLogoFile(file: File, maxSize = 512): Promise<string
     if (!ctx) throw new ImageProcessingError('decode');
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    return supportsWebp() ? canvas.toDataURL('image/webp', 0.9) : canvas.toDataURL('image/png');
+    return supportsWebp() ? canvas.toDataURL('image/webp', quality) : canvas.toDataURL('image/png');
   } catch (err) {
     if (err instanceof ImageProcessingError) throw err;
     throw new ImageProcessingError('decode');

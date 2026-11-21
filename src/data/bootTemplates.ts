@@ -1,6 +1,6 @@
 import type { BootDesign, Localized, ModelId } from '../store/types';
 
-export type BootTemplate = Omit<BootDesign, 'id' | 'createdAt' | 'updatedAt' | 'logo' | 'templateId'> & {
+export type BootTemplate = Omit<BootDesign, 'id' | 'createdAt' | 'updatedAt' | 'logo' | 'templateId' | 'media' | 'mediaOverlay' | 'mediaDim'> & {
   templateId: string;
   label: Localized;
 };
@@ -138,7 +138,7 @@ export const templatesForModel = (model: ModelId) => BOOT_TEMPLATES.filter((t) =
 
 export function bootFromTemplate(template: BootTemplate, id: string, now = Date.now()): BootDesign {
   const { label: _label, ...rest } = template;
-  return { ...rest, id, logo: null, createdAt: now, updatedAt: now };
+  return { ...rest, id, logo: null, media: null, mediaOverlay: false, mediaDim: 0, createdAt: now, updatedAt: now };
 }
 
 export const defaultTemplateFor = (model: ModelId) => templatesForModel(model)[0];

@@ -1,5 +1,6 @@
-import type { BootDesign, BootEmblem } from '../store/types';
+import type { BootDesign, BootEmblem, BootMediaFit } from '../store/types';
 import { withAlpha } from './color';
+import { loadVideoElement, seekVideo, videoUrl } from './mediaStore';
 
 export const BOOT_FONTS: Record<BootDesign['font'], { family: string; weight: number }> = {
   orbitron: { family: 'Orbitron', weight: 900 },
@@ -16,6 +17,22 @@ export interface BootAssets {
   logo: HTMLImageElement | null;
   /** In Leuchtfarbe eingefärbtes Logo (bei logoTint) */
   tinted: HTMLCanvasElement | null;
+  /** Eigenes Bild oder Video (null, wenn keines gewählt ist oder das Video auf diesem Gerät fehlt) */
+  media: HTMLImageElement | HTMLVideoElement | null;
+}
+
+export const NO_ASSETS: BootAssets = { logo: null, tinted: null, media: null };
+
+/** Zeichnet ein Bild oder das aktuelle Videobild formatfüllend bzw. vollständig auf Schwarz. */
+function drawMedia(ctx: CanvasRenderingContext2D, source: HTMLImageElement | HTMLVideoElement, fit: BootMediaFit, w: number, h: number) {
+  const sw = source instanceof HTMLVideoElement ? source.videoWidth : source.naturalWidth;
+  const sh = source instanceof HTMLVideoElement ? source.videoHeight : source.naturalHeight;
+  if (!sw || !sh) return;
+  const k = fit === 'cover' ? Math.max(w / sw, h / sh) : Math.min(w / sw, h / sh);
+  const dw = sw * k;
+  const dh = sh * k;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(source, (w - dw) / 2, (h - dh) / 2, dw, dh);
 }
 
 export const fontSpec = (design: BootDesign, px: number) => {
@@ -226,13 +243,29 @@ export function renderBootFrame(ctx: CanvasRenderingContext2D, d: BootDesign, ti
   const cx = w / 2;
   const size = unit * 0.72 * d.logoScale;
 
+  const media = d.media ? assets.media : null;
+  // Mit eigenem Bild/Video erscheinen Logo, Text und Effekt nur, wenn sie ausdrücklich darüber gewünscht sind.
+  const content = !media || d.mediaOverlay;
+
   ctx.save();
   ctx.clearRect(0, 0, w, h);
-  drawBackground(ctx, d, w, h, time, easeOut(segment(p, 0, 0.14)));
+  if (media && d.media) {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, w, h);
+    ctx.globalAlpha = d.media.kind === 'video' ? 1 : easeOut(segment(p, 0, 0.12));
+    drawMedia(ctx, media, d.media.fit, w, h);
+    ctx.globalAlpha = 1;
+    if (d.mediaDim > 0) {
+      ctx.fillStyle = `rgba(0,0,0,${d.mediaDim / 100})`;
+      ctx.fillRect(0, 0, w, h);
+    }
+  } else {
+    drawBackground(ctx, d, w, h, time, easeOut(segment(p, 0, 0.14)));
+  }
 
   // Effekt-Intro für Logo/Emblem
   const e = easeOut(segment(p, 0.1, 0.58));
-  if (mark) {
+  if (mark && content) {
     ctx.save();
     switch (d.effect) {
       case 'fade': {
@@ -374,7 +407,7 @@ export function renderBootFrame(ctx: CanvasRenderingContext2D, d: BootDesign, ti
   const titleSize = unit * (portrait ? 0.11 : 0.12);
   const titleY = mark ? cy + size / 2 + unit * 0.13 : cy;
   ctx.textBaseline = 'middle';
-  if (d.title) {
+  if (d.title && content) {
     ctx.save();
     ctx.font = fontSpec(d, titleSize);
     const width = Math.min(w * 0.94, ctx.measureText(d.title).width + titleSize * 0.15 * d.title.length);
@@ -388,7 +421,7 @@ export function renderBootFrame(ctx: CanvasRenderingContext2D, d: BootDesign, ti
     drawSpaced(ctx, d.title, cx, titleY, titleSize * 0.12);
     ctx.restore();
   }
-  if (d.subtitle) {
+  if (d.subtitle && content) {
     ctx.save();
     ctx.font = fontSpec(d, titleSize * 0.36);
     ctx.globalAlpha = subP * 0.9;
@@ -418,13 +451,15 @@ export function renderBootFrame(ctx: CanvasRenderingContext2D, d: BootDesign, ti
     ctx.globalAlpha = 1;
   }
 
-  // Vignette und Display-Rasterlinien
-  const v = ctx.createRadialGradient(cx, h / 2, unit * 0.3, cx, h / 2, Math.max(w, h) * 0.75);
-  v.addColorStop(0, 'rgba(0,0,0,0)');
-  v.addColorStop(1, 'rgba(0,0,0,0.55)');
-  ctx.fillStyle = v;
-  ctx.fillRect(0, 0, w, h);
-  if (d.effect === 'scan' || d.effect === 'glitch') {
+  // Vignette und Display-Rasterlinien (nicht über einem reinen eigenen Bild/Video)
+  if (content) {
+    const v = ctx.createRadialGradient(cx, h / 2, unit * 0.3, cx, h / 2, Math.max(w, h) * 0.75);
+    v.addColorStop(0, 'rgba(0,0,0,0)');
+    v.addColorStop(1, 'rgba(0,0,0,0.55)');
+    ctx.fillStyle = v;
+    ctx.fillRect(0, 0, w, h);
+  }
+  if (content && (d.effect === 'scan' || d.effect === 'glitch')) {
     ctx.fillStyle = 'rgba(255,255,255,0.025)';
     const step = Math.max(2, Math.round(h / 160));
     for (let y = 0; y < h; y += step * 2) ctx.fillRect(0, y, w, step);
@@ -442,15 +477,34 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.closePath();
 }
 
-export async function loadBootAssets(design: BootDesign): Promise<BootAssets> {
-  if (!design.logo) return { logo: null, tinted: null };
-  const img = await new Promise<HTMLImageElement | null>((resolve) => {
+const loadImg = (src: string) =>
+  new Promise<HTMLImageElement | null>((resolve) => {
     const el = new Image();
     el.onload = () => resolve(el);
     el.onerror = () => resolve(null);
-    el.src = design.logo as string;
+    el.src = src;
   });
-  return { logo: img, tinted: img ? createTintedLogo(img, design.glowColor) : null };
+
+/** Lädt Logo und eigenes Bild/Video. Ein Video kommt aus dem lokalen Videospeicher dieses Geräts. */
+export async function loadBootAssets(design: BootDesign): Promise<BootAssets> {
+  const [img, media] = await Promise.all([
+    design.logo ? loadImg(design.logo) : Promise.resolve(null),
+    !design.media
+      ? Promise.resolve(null)
+      : design.media.kind === 'image'
+        ? loadImg(design.media.src)
+        : videoUrl(design.media.src).then((url) => (url ? loadVideoElement(url) : null)),
+  ]);
+  return { logo: img, tinted: img ? createTintedLogo(img, design.glowColor) : null, media };
+}
+
+/** Gibt ein geladenes Video wieder frei. */
+export function releaseBootAssets(assets: BootAssets) {
+  if (assets.media instanceof HTMLVideoElement) {
+    assets.media.pause();
+    assets.media.removeAttribute('src');
+    assets.media.load();
+  }
 }
 
 /** Exportiert einen Standbild-Frame (Endzustand) als PNG-Blob. */
@@ -462,7 +516,9 @@ export async function exportBootPng(design: BootDesign, width: number, height: n
   canvas.height = height;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('canvas');
+  if (assets.media instanceof HTMLVideoElement) await seekVideo(assets.media, design.duration);
   renderBootFrame(ctx, design, design.duration, width, height, assets);
+  releaseBootAssets(assets);
   return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('blob'))), 'image/png'));
 }
 
@@ -498,18 +554,27 @@ export async function exportBootVideo(design: BootDesign, width: number, height:
     recorder.onstop = () => {
       stream.getTracks().forEach((t) => t.stop());
       canvas.remove();
+      releaseBootAssets(assets);
       resolve({ blob: new Blob(chunks, { type: mime.split(';')[0] }), ext: mime.includes('mp4') ? 'mp4' : 'webm' });
     };
     recorder.onerror = () => {
       canvas.remove();
+      releaseBootAssets(assets);
       reject(new Error('recorder'));
     };
+    const video = assets.media instanceof HTMLVideoElement ? assets.media : null;
     renderBootFrame(ctx, design, 0, width, height, assets);
     recorder.start(250);
     const start = performance.now();
+    if (video) {
+      video.currentTime = 0;
+      void video.play().catch(() => undefined);
+    }
     const tick = () => {
       const t = (performance.now() - start) / 1000;
-      renderBootFrame(ctx, design, Math.min(t, design.duration), width, height, assets);
+      // Mit eigenem Video bestimmt dessen Abspielposition, welches Bild gezeigt wird.
+      if (video && t >= design.duration) video.pause();
+      renderBootFrame(ctx, design, Math.min(video ? video.currentTime : t, design.duration), width, height, assets);
       onProgress?.(Math.min(1, t / total));
       if (t < total) requestAnimationFrame(tick);
       else recorder.stop();

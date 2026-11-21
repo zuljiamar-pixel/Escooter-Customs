@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { BOOT_HOLD, ensureBootFonts, loadBootAssets, renderBootFrame, type BootAssets } from '../../lib/bootRenderer';
+import { BOOT_HOLD, ensureBootFonts, loadBootAssets, NO_ASSETS, releaseBootAssets, renderBootFrame, type BootAssets } from '../../lib/bootRenderer';
+import { seekVideo } from '../../lib/mediaStore';
 import { cn } from '../../lib/cn';
 import { screenOf } from '../../data/scooters';
 import type { BootDesign } from '../../store/types';
@@ -18,27 +19,42 @@ interface BootCanvasProps {
   label?: string;
   /** In einer einheitlichen 4:3-Kachel zeigen (Hochformat steht mittig) */
   tile?: boolean;
+  /** Meldet, ob ein gewähltes eigenes Video auf diesem Gerät fehlt */
+  onMediaMissing?: (missing: boolean) => void;
 }
 
-export function BootCanvas({ design, playing = false, loop = true, restartKey = 0, seek = null, onTime, className, label, tile = false }: BootCanvasProps) {
+export function BootCanvas({ design, playing = false, loop = true, restartKey = 0, seek = null, onTime, className, label, tile = false, onMediaMissing }: BootCanvasProps) {
   const portrait = screenOf(design.model) === 'portrait';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const [assets, setAssets] = useState<BootAssets>({ logo: null, tinted: null });
+  const [assets, setAssets] = useState<BootAssets>(NO_ASSETS);
   const [fontsReady, setFontsReady] = useState(0);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const startRef = useRef(performance.now());
+  const restartRef = useRef(restartKey);
   const onTimeRef = useRef(onTime);
   onTimeRef.current = onTime;
+  const missingRef = useRef(onMediaMissing);
+  missingRef.current = onMediaMissing;
 
-  // Logo laden und einfärben
+  const mediaKey = design.media ? `${design.media.kind}:${design.media.src}` : '';
+
+  // Logo und eigenes Bild/Video laden (Logo wird bei Bedarf eingefärbt)
   useEffect(() => {
     let cancelled = false;
-    void loadBootAssets(design).then((a) => !cancelled && setAssets(a));
+    let loaded: BootAssets | null = null;
+    void loadBootAssets(design).then((a) => {
+      if (cancelled) return releaseBootAssets(a);
+      loaded = a;
+      setAssets(a);
+      missingRef.current?.(!!design.media && !a.media);
+    });
     return () => {
       cancelled = true;
+      if (loaded) releaseBootAssets(loaded);
     };
-  }, [design.logo, design.glowColor]);
+    // Nur bei anderem Logo, anderer Leuchtfarbe oder anderem Bild/Video neu laden
+  }, [design.logo, design.glowColor, mediaKey]);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,14 +86,61 @@ export function BootCanvas({ design, playing = false, loop = true, restartKey = 
     if (!canvas || !ctx || !size.w || !size.h) return;
     canvas.width = size.w;
     canvas.height = size.h;
+    const draw = (t: number) => renderBootFrame(ctx, design, t, size.w, size.h, assets);
+    const video = assets.media instanceof HTMLVideoElement ? assets.media : null;
+    const restarted = restartRef.current !== restartKey;
+    restartRef.current = restartKey;
 
+    // Standbild oder Scrubbing
     if (seek !== null || !playing) {
-      renderBootFrame(ctx, design, seek ?? design.duration, size.w, size.h, assets);
-      return;
+      const at = seek ?? design.duration;
+      draw(at);
+      if (!video) return;
+      video.pause();
+      let cancelled = false;
+      void seekVideo(video, at).then(() => !cancelled && draw(at));
+      return () => {
+        cancelled = true;
+      };
     }
 
     let raf = 0;
     let lastReport = 0;
+    const report = (now: number, t: number, force = false) => {
+      if (force || now - lastReport > 80) {
+        lastReport = now;
+        onTimeRef.current?.(t);
+      }
+    };
+
+    // Eigenes Video: seine Abspielposition ist die Zeitleiste
+    if (video) {
+      if (restarted || video.currentTime >= design.duration - 0.05 || video.ended) video.currentTime = 0;
+      void video.play().catch(() => undefined);
+      let endedAt: number | null = null;
+      const frame = (now: number) => {
+        const t = Math.min(video.currentTime, design.duration);
+        draw(t);
+        report(now, t);
+        if (video.currentTime >= design.duration || video.ended) {
+          video.pause();
+          endedAt ??= now;
+          if (!loop) return report(now, design.duration, true);
+          if (now - endedAt > BOOT_HOLD * 1000) {
+            endedAt = null;
+            video.currentTime = 0;
+            void video.play().catch(() => undefined);
+          }
+        }
+        raf = requestAnimationFrame(frame);
+      };
+      raf = requestAnimationFrame(frame);
+      return () => {
+        cancelAnimationFrame(raf);
+        video.pause();
+      };
+    }
+
     const cycle = design.duration + BOOT_HOLD;
     const frame = (now: number) => {
       let t = (now - startRef.current) / 1000;
@@ -86,11 +149,8 @@ export function BootCanvas({ design, playing = false, loop = true, restartKey = 
         t = 0;
       }
       const shown = Math.min(t, design.duration);
-      renderBootFrame(ctx, design, shown, size.w, size.h, assets);
-      if (now - lastReport > 80) {
-        lastReport = now;
-        onTimeRef.current?.(shown);
-      }
+      draw(shown);
+      report(now, shown);
       if (loop || t < design.duration) raf = requestAnimationFrame(frame);
       else onTimeRef.current?.(design.duration);
     };

@@ -1,10 +1,11 @@
-import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, type ReactNode } from 'react';
 import { bootFromTemplate, BOOT_TEMPLATES } from '../data/bootTemplates';
 import { migrateLayout } from '../data/layouts';
 import { isModelId } from '../data/scooters';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { createId } from '../lib/id';
 import { clearAllStored } from '../lib/storage';
+import { clearVideos, pruneVideos } from '../lib/mediaStore';
 import {
   DEFAULT_PREVIEW,
   DEFAULT_SETTINGS,
@@ -282,10 +283,18 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     (m: ModelId, templateId: string) => {
       const template = BOOT_TEMPLATES.find((t) => t.templateId === templateId);
       if (!template) return;
-      // Eigenes Logo bleibt beim Wechsel der Vorlage erhalten.
+      // Eigenes Logo und eigenes Bild/Video bleiben beim Wechsel der Vorlage erhalten.
       patchBoot(m, (d) => ({
         editingId: d.editingId,
-        design: { ...bootFromTemplate(template, d.design.id), model: m, logo: d.design.logo, name: d.editingId ? d.design.name : template.name },
+        design: {
+          ...bootFromTemplate(template, d.design.id),
+          model: m,
+          logo: d.design.logo,
+          media: d.design.media,
+          mediaOverlay: d.design.mediaOverlay,
+          mediaDim: d.design.mediaDim,
+          name: d.editingId ? d.design.name : template.name,
+        },
       }));
     },
     [patchBoot],
@@ -409,8 +418,21 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     [setSavedThemes, setBootDesigns, setCustomLayouts, setSettings],
   );
 
+  // Eigene Videos, die kein Entwurf und kein gespeichertes Design mehr verwendet, aus dem lokalen Speicher löschen
+  const videoIds = useMemo(() => {
+    const ids = [...Object.values(bootDrafts).map((d) => d.design), ...bootDesigns]
+      .map((d) => (d.media?.kind === 'video' ? d.media.src : null))
+      .filter((v): v is string => !!v);
+    return [...new Set(ids)].sort().join('|');
+  }, [bootDrafts, bootDesigns]);
+  useEffect(() => {
+    const id = window.setTimeout(() => void pruneVideos(new Set(videoIds ? videoIds.split('|') : [])), 1500);
+    return () => window.clearTimeout(id);
+  }, [videoIds]);
+
   const resetAll = useCallback(() => {
     clearAllStored();
+    void clearVideos();
     setSettings(DEFAULT_SETTINGS);
     setModel(null);
     setDesigns(defaultDesigns());

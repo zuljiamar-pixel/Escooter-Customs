@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { PageHeader } from '../components/layout/PageHeader';
 import { BootCanvas } from '../components/boot/BootCanvas';
+import { BootMediaCard } from '../components/boot/BootMediaCard';
 import { ColorField } from '../components/color/ColorPicker';
 import { DisplayMockup } from '../components/scooter/DisplayMockup';
 import { Badge, Card, SectionLabel } from '../components/ui/Card';
@@ -91,6 +92,7 @@ export function BootLogo() {
   const [videoProgress, setVideoProgress] = useState(0);
   const [saveOpen, setSaveOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
+  const [mediaMissing, setMediaMissing] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const change = (patch: Partial<BootDesign>) => updateBootDraft(model, patch);
@@ -218,6 +220,7 @@ export function BootLogo() {
                 restartKey={restartKey}
                 seek={seek}
                 onTime={setTime}
+                onMediaMissing={setMediaMissing}
                 label={t('boot.previewLabel', { name: design.name })}
               />
             </DisplayMockup>
@@ -270,6 +273,8 @@ export function BootLogo() {
               ))}
             </div>
           </Card>
+
+          <BootMediaCard design={design} change={change} onApplied={restart} missing={mediaMissing} />
 
           <Card title={t('boot.logo.title')} icon={ImagePlus}>
             <div
@@ -378,7 +383,9 @@ export function BootLogo() {
                 options={(['solid', 'radial', 'grid'] as BootBackground[]).map((v) => ({ value: v, label: t(`boot.bg.${v}`) }))}
               />
               <div className="grid gap-4 sm:grid-cols-2">
-                <Slider label={t('boot.duration')} value={design.duration} min={1.5} max={8} step={0.1} onChange={(duration) => change({ duration })} format={(v) => `${v.toFixed(1)} s`} />
+                {design.media?.kind !== 'video' && (
+                  <Slider label={t('boot.duration')} value={Math.min(design.duration, 8)} min={1.5} max={8} step={0.1} onChange={(duration) => change({ duration })} format={(v) => `${v.toFixed(1)} s`} />
+                )}
                 <Slider label={t('display.glow')} value={design.glow} min={0} max={100} onChange={(glow) => change({ glow })} format={(v) => `${v}%`} />
               </div>
               <Switch label={t('boot.progress')} checked={design.showProgress} onChange={(showProgress) => change({ showProgress })} />
@@ -407,6 +414,7 @@ export function BootLogo() {
               </Button>
             </div>
             <p className="mt-3 text-xs text-subtle">{videoSupported ? t('boot.export.hint') : t('boot.export.videoUnsupported')}</p>
+            {design.media?.kind === 'video' && <p className="mt-1 text-xs text-subtle">{t('boot.export.videoJson')}</p>}
 
             <div className="mt-5 grid gap-2 border-t border-line/70 pt-4 sm:grid-cols-2">
               {editing && (

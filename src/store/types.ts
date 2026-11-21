@@ -53,6 +53,16 @@ export interface LayoutElement {
 export type BootEffect = 'fade' | 'pulse' | 'scan' | 'glitch' | 'ring' | 'particles' | 'hyperdrive';
 export type BootEmblem = 'bolt' | 'ring' | 'wing' | 'hex' | 'none';
 export type BootBackground = 'solid' | 'radial' | 'grid';
+export type BootMediaFit = 'cover' | 'contain';
+
+/** Eigenes Bild oder Video als Startbildschirm (füllt das ganze Display) */
+export interface BootMedia {
+  kind: 'image' | 'video';
+  /** Bild: Data-URL (lokal verkleinert). Video: Schlüssel im lokalen Videospeicher (IndexedDB) dieses Geräts. */
+  src: string;
+  /** cover = Display füllen (Ränder werden abgeschnitten), contain = ganz zeigen */
+  fit: BootMediaFit;
+}
 
 export interface BootDesign {
   id: string;
@@ -77,6 +87,12 @@ export interface BootDesign {
   duration: number;
   glow: number;
   showProgress: boolean;
+  /** Eigenes Bild/Video statt animiertem Hintergrund */
+  media: BootMedia | null;
+  /** Logo/Emblem, Text und Effekt über dem eigenen Bild/Video zeigen */
+  mediaOverlay: boolean;
+  /** Abdunkeln des eigenen Bilds/Videos in Prozent (für lesbaren Text) */
+  mediaDim: number;
   createdAt: number;
   updatedAt: number;
 }

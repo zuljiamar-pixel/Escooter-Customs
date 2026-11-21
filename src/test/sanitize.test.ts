@@ -99,9 +99,22 @@ describe('sanitizeBoot', () => {
 
   it('clamps duration and restricts text length', () => {
     const b = sanitizeBoot({ id: 'x', duration: 99, title: 'A'.repeat(100), model: 'unknown' })!;
-    expect(b.duration).toBe(8);
+    expect(b.duration).toBe(15);
     expect(b.title).toHaveLength(24);
     expect(b.model).toBe('max-g3');
+    expect(b.media).toBeNull();
+    expect(b.mediaOverlay).toBe(false);
+    expect(b.mediaDim).toBe(0);
+  });
+
+  it('keeps a valid own image or video and drops anything else', () => {
+    const base = bootFromTemplate(BOOT_TEMPLATES[0], 'b2', 1);
+    const img = 'data:image/webp;base64,UklGRiQAAABXRUJQ';
+    expect(sanitizeBoot({ ...base, media: { kind: 'image', src: img, fit: 'contain' } })!.media).toEqual({ kind: 'image', src: img, fit: 'contain' });
+    expect(sanitizeBoot({ ...base, media: { kind: 'video', src: 'vid-abc123-xyz', fit: 'nope' } })!.media).toEqual({ kind: 'video', src: 'vid-abc123-xyz', fit: 'cover' });
+    expect(sanitizeBoot({ ...base, media: { kind: 'image', src: 'https://example.com/a.png', fit: 'cover' } })!.media).toBeNull();
+    expect(sanitizeBoot({ ...base, media: { kind: 'video', src: '../../etc/passwd', fit: 'cover' } })!.media).toBeNull();
+    expect(sanitizeBoot({ ...base, mediaDim: 300 })!.mediaDim).toBe(80);
   });
 
   it('accepts every template', () => {
